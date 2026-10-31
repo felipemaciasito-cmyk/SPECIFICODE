@@ -17,7 +17,7 @@
       --accent-ink: #ffffff;
       --warn: #b4532a;
       --radius: 18px;
-      --serif: ui-serif, "New York", Georgia, "Times New Roman", serif;
+      --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", Arial, sans-serif;
       --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
@@ -37,6 +37,8 @@
       margin: 0; background: var(--bg); color: var(--ink);
       font: 16px/1.45 var(--sans);
       font-feature-settings: "tnum";
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.006em;
     }
     button, input, select { font: inherit; color: inherit; }
     button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -55,7 +57,7 @@
       padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
       display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
     }
-    .marque { font: 500 22px var(--serif); letter-spacing: -0.01em; margin-right: auto; }
+    .marque { font: 600 20px var(--display); letter-spacing: -0.02em; margin-right: auto; }
     nav { display: flex; gap: 2px; background: var(--soft); border-radius: 999px; padding: 3px; }
     nav button {
       border: 0; background: transparent; color: var(--muted);
@@ -96,9 +98,9 @@
     /* Chiffres clés */
     .kpi-hero { padding: 8px 0 22px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
     .etiquette { font-size: 13px; color: var(--muted); }
-    .gros { font: 400 56px/1.05 var(--serif); letter-spacing: -0.02em; margin-top: 4px; }
+    .gros { font: 300 56px/1.05 var(--display); letter-spacing: -0.04em; margin-top: 4px; }
     .kpis { display: grid; gap: 18px 12px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
-    .kpi .valeur { font: 400 26px/1.15 var(--serif); margin-top: 2px; overflow-wrap: anywhere; }
+    .kpi .valeur { font: 500 24px/1.15 var(--display); letter-spacing: -0.025em; margin-top: 2px; overflow-wrap: anywhere; }
 
     .piste { height: 6px; border-radius: 3px; background: var(--soft); overflow: hidden; margin-top: 8px; }
     .piste > i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
@@ -168,7 +170,7 @@
       width: min(480px, calc(100vw - 24px)); padding: 24px; margin: auto;
     }
     dialog::backdrop { background: rgba(10, 10, 10, .45); }
-    dialog h2 { font: 500 24px var(--serif); margin-bottom: 18px; }
+    dialog h2 { font: 600 22px var(--display); letter-spacing: -0.02em; margin-bottom: 18px; }
     .apercu { min-height: 1.4em; color: var(--muted); font-size: 14px; }
     .err { min-height: 1.2em; color: var(--warn); font-size: 14px; }
     .actions { display: flex; align-items: center; gap: 10px; }
