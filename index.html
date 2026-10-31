@@ -118,6 +118,10 @@
     .ligne:active { background: var(--soft); }
     .ligne > span { display: grid; gap: 1px; }
     .ligne > span:last-child { text-align: right; }
+    .ligne-wrap { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--line); }
+    .ligne-wrap .ligne { flex: 1; min-width: 0; border-bottom: 0; }
+    .suppr-ligne { flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; }
+    .suppr-ligne:hover, .suppr-ligne:focus-visible { color: var(--warn); }
     .ligne-t { font-weight: 600; }
     .vide { text-align: center; padding: 36px 8px; color: var(--muted); }
     .vide .primaire { margin-top: 16px; }
@@ -508,9 +512,11 @@
             carteListe.append(h('div', { class: 'jour' }, h('h3', {}, libelleJour(c.date)), h('span', { class: 'muted' }, `${fmtEuros.format(jour.euros)} · ${fmtNb.format(jour.km)} km`)));
           }
           const detail = [c.plateforme, c.minutes ? `${c.minutes} min` : '', c.note].filter(Boolean).join(' · ');
-          carteListe.append(h('button', { class: 'ligne', type: 'button', onclick: () => ouvrirCourse(c) },
-            h('span', {}, h('span', { class: 'ligne-t' }, `${fmtNb.format(c.km)} km`), detail ? h('span', { class: 'muted' }, detail) : null),
-            h('span', {}, h('span', { class: 'ligne-t' }, fmtEuros.format(c.euros)), h('span', { class: 'muted' }, `${fmtEuros.format(c.euros / c.km)} / km`))));
+          carteListe.append(h('div', { class: 'ligne-wrap' },
+            h('button', { class: 'ligne', type: 'button', onclick: () => ouvrirCourse(c) },
+              h('span', {}, h('span', { class: 'ligne-t' }, `${fmtNb.format(c.km)} km`), detail ? h('span', { class: 'muted' }, detail) : null),
+              h('span', {}, h('span', { class: 'ligne-t' }, fmtEuros.format(c.euros)), h('span', { class: 'muted' }, `${fmtEuros.format(c.euros / c.km)} / km`))),
+            h('button', { class: 'suppr-ligne', type: 'button', 'aria-label': 'Supprimer cette course', title: 'Supprimer', onclick: () => supprimerCourse(c.id) }, '×')));
         }
       }
       racine.append(carteListe);
@@ -847,13 +853,17 @@
     });
 
     $('#f-annuler').addEventListener('click', fermerDialogue);
-    $('#f-suppr').addEventListener('click', () => {
-      if (!window.confirm('Supprimer cette course ?')) return;
-      etat.courses = etat.courses.filter((c) => c.id !== etat.edition);
+    function supprimerCourse(id) {
+      if (!window.confirm('Supprimer cette course ?')) return false;
+      etat.courses = etat.courses.filter((c) => c.id !== id);
       sauver();
-      fermerDialogue();
       rendu();
       toast('Course supprimée');
+      return true;
+    }
+    $('#f-suppr').addEventListener('click', () => {
+      if (!supprimerCourse(etat.edition)) return;
+      fermerDialogue();
     });
     dlg.addEventListener('click', (e) => { if (e.target === dlg) fermerDialogue(); });
     $('#btn-ajout').addEventListener('click', () => ouvrirCourse(null));
