@@ -99,6 +99,7 @@
     .kpi-hero { padding: 8px 0 22px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
     .etiquette { font-size: 13px; color: var(--muted); }
     .gros { font: 300 56px/1.05 var(--display); letter-spacing: -0.04em; margin-top: 4px; }
+    .kpi-hero .gros { font-weight: 700; }
     .kpis { display: grid; gap: 18px 12px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
     .kpi .valeur { font: 500 24px/1.15 var(--display); letter-spacing: -0.025em; margin-top: 2px; overflow-wrap: anywhere; }
 
@@ -509,7 +510,7 @@
           if (c.date !== dernier) {
             dernier = c.date;
             const jour = calculer(liste.filter((x) => x.date === c.date));
-            carteListe.append(h('div', { class: 'jour' }, h('h3', {}, libelleJour(c.date)), h('span', { class: 'muted' }, `${fmtEuros.format(jour.euros)} · ${fmtNb.format(jour.km)} km`)));
+            carteListe.append(h('div', { class: 'jour' }, h('h3', {}, libelleJour(c.date)), h('span', { class: 'muted' }, h('strong', {}, fmtEuros.format(jour.euros)), ` · ${fmtNb.format(jour.km)} km`)));
           }
           const detail = [c.plateforme, c.minutes ? `${c.minutes} min` : '', c.note].filter(Boolean).join(' · ');
           carteListe.append(h('div', { class: 'ligne-wrap' },
