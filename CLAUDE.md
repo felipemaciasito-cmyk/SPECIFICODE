@@ -13,3 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `tests/calculs.test.js` extrait de `index.html` les blocs entre `/* calculs:début */` et `/* calculs:fin */` et les évalue dans `vm`. Ces blocs doivent rester purs (pas de `document`, `localStorage` ni `etat`). Une nouvelle fonction à tester doit être placée dans un bloc **et** ajoutée à la liste renvoyée dans le test.
 - `tests/regressions.test.js` et `persistance.e2e.js` pilotent l'UI via des sélecteurs (`#onglets button[data-vue=…]`, `#fichier`, `.puce`, `.tag`, `button.danger`, `.ajout button`, `#btn-ajout`). Renommer ces éléments casse les tests.
+
+## Conventions
+
+- Chaque montant s'affiche avec le symbole € après le nombre et une virgule décimale, comme `12,50 €`.
