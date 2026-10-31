@@ -17,7 +17,7 @@
       --accent-ink: #ffffff;
       --warn: #b4532a;
       --radius: 18px;
-      --serif: ui-serif, "New York", Georgia, "Times New Roman", serif;
+      --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", Arial, sans-serif;
       --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
@@ -37,6 +37,8 @@
       margin: 0; background: var(--bg); color: var(--ink);
       font: 16px/1.45 var(--sans);
       font-feature-settings: "tnum";
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.006em;
     }
     button, input, select { font: inherit; color: inherit; }
     button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -55,7 +57,7 @@
       padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
       display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
     }
-    .marque { font: 500 22px var(--serif); letter-spacing: -0.01em; margin-right: auto; }
+    .marque { font: 600 20px var(--display); letter-spacing: -0.02em; margin-right: auto; }
     nav { display: flex; gap: 2px; background: var(--soft); border-radius: 999px; padding: 3px; }
     nav button {
       border: 0; background: transparent; color: var(--muted);
@@ -96,9 +98,9 @@
     /* Chiffres clés */
     .kpi-hero { padding: 8px 0 22px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
     .etiquette { font-size: 13px; color: var(--muted); }
-    .gros { font: 400 56px/1.05 var(--serif); letter-spacing: -0.02em; margin-top: 4px; }
+    .gros { font: 300 56px/1.05 var(--display); letter-spacing: -0.04em; margin-top: 4px; }
     .kpis { display: grid; gap: 18px 12px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
-    .kpi .valeur { font: 400 26px/1.15 var(--serif); margin-top: 2px; overflow-wrap: anywhere; }
+    .kpi .valeur { font: 500 24px/1.15 var(--display); letter-spacing: -0.025em; margin-top: 2px; overflow-wrap: anywhere; }
 
     .piste { height: 6px; border-radius: 3px; background: var(--soft); overflow: hidden; margin-top: 8px; }
     .piste > i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
@@ -168,12 +170,19 @@
       width: min(480px, calc(100vw - 24px)); padding: 24px; margin: auto;
     }
     dialog::backdrop { background: rgba(10, 10, 10, .45); }
-    dialog h2 { font: 500 24px var(--serif); margin-bottom: 18px; }
+    dialog h2 { font: 600 22px var(--display); letter-spacing: -0.02em; margin-bottom: 18px; }
     .apercu { min-height: 1.4em; color: var(--muted); font-size: 14px; }
     .err { min-height: 1.2em; color: var(--warn); font-size: 14px; }
     .actions { display: flex; align-items: center; gap: 10px; }
     .espace { flex: 1; }
     .lien-danger { border: 0; background: transparent; color: var(--warn); min-height: 44px; padding: 0 6px; font-weight: 500; }
+
+    #bandeau {
+      background: var(--warn); color: var(--bg); padding: 10px 20px;
+      display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; font-size: 15px;
+    }
+    #bandeau[hidden] { display: none; }
+    #bandeau button { border: 1px solid currentColor; background: transparent; color: inherit; min-height: 36px; padding: 0 14px; border-radius: 999px; font-weight: 600; }
 
     #toast {
       position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translate(-50%, 20px);
@@ -196,6 +205,11 @@
       <button class="primaire" id="btn-ajout" type="button">+ Course</button>
     </div>
   </header>
+
+  <div id="bandeau" role="alert" hidden>
+    <span>Non enregistré sur cet appareil : exporte tes données pour ne rien perdre.</span>
+    <button type="button" id="bandeau-export">Exporter</button>
+  </div>
 
   <main id="app"></main>
 
@@ -229,6 +243,7 @@
   <script>
     const CLE = 'courses-livraison-v2';
     const CLE_V1 = 'courses-livraison-v1';
+    const CLE_SAUVEGARDE = 'courses-livraison-v2-sauvegarde';
     const PAR_DEFAUT = {
       plateformes: ['Uber Eats', 'Deliveroo', 'Just Eat'],
       coutKm: 0,
@@ -247,6 +262,7 @@
     /* ---------- Données ---------- */
     const etat = {
       ...charger(),
+      stockageOk: stockageDisponible(),
       vue: 'courses',
       mode: 'semaine',
       decalage: 0,
@@ -256,6 +272,7 @@
       edition: null,
     };
 
+    /* calculs:début */
     function nettoyer(liste) {
       if (!Array.isArray(liste)) return [];
       return liste
@@ -270,26 +287,59 @@
           note: typeof c.note === 'string' ? c.note : '',
         }));
     }
+    /* calculs:fin */
+
+    // Teste que le navigateur accepte l’écriture (stockage bloqué, mode privé, plein…).
+    function stockageDisponible() {
+      try {
+        localStorage.setItem('courses-livraison-test', '1');
+        localStorage.removeItem('courses-livraison-test');
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // Garde une copie brute des données que l’appli ne sait pas relire, avant qu’une sauvegarde ne les écrase.
+    function mettreDeCote(brut) {
+      try { localStorage.setItem(CLE_SAUVEGARDE, brut); } catch (e) { /* rien de plus à faire */ }
+    }
 
     function charger() {
+      const resultat = { courses: [], reglages: { ...PAR_DEFAUT }, alerte: '' };
       try {
         const brut = localStorage.getItem(CLE);
         if (brut) {
-          const d = JSON.parse(brut);
-          return { courses: nettoyer(d.courses), reglages: { ...PAR_DEFAUT, ...d.reglages } };
+          try {
+            const d = JSON.parse(brut);
+            const lues = Array.isArray(d.courses) ? d.courses : [];
+            resultat.courses = nettoyer(lues);
+            resultat.reglages = { ...PAR_DEFAUT, ...d.reglages };
+            const ecartees = lues.length - resultat.courses.length;
+            if (ecartees > 0) {
+              mettreDeCote(brut);
+              resultat.alerte = `${ecartees} course(s) illisible(s) mise(s) de côté.`;
+            }
+          } catch (e) {
+            mettreDeCote(brut);
+            resultat.alerte = 'Données illisibles : une copie a été conservée.';
+          }
+          return resultat;
         }
         const v1 = localStorage.getItem(CLE_V1);
-        if (v1) return { courses: nettoyer(JSON.parse(v1)), reglages: { ...PAR_DEFAUT } };
+        if (v1) resultat.courses = nettoyer(JSON.parse(v1));
       } catch (e) { /* stockage indisponible ou illisible */ }
-      return { courses: [], reglages: { ...PAR_DEFAUT } };
+      return resultat;
     }
 
-    function sauvegarder() {
+    function sauver() {
       try {
         localStorage.setItem(CLE, JSON.stringify({ courses: etat.courses, reglages: etat.reglages }));
+        etat.stockageOk = true;
       } catch (e) {
-        toast('Impossible d’enregistrer sur cet appareil.');
+        etat.stockageOk = false;
       }
+      $('#bandeau').hidden = etat.stockageOk;
     }
 
     /* ---------- Utilitaires ---------- */
@@ -318,6 +368,7 @@
       return el;
     }
 
+    /* calculs:début */
     const pad = (n) => String(n).padStart(2, '0');
     const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     const lireDate = (t) => { const [a, m, j] = t.split('-').map(Number); return new Date(a, m - 1, j); };
@@ -330,6 +381,7 @@
       const t = texte.trim().replace(',', '.');
       return /^\d+(\.\d+)?$/.test(t) ? Number(t) : null;
     }
+    /* calculs:fin */
 
     function libelleJour(texte) {
       const d = lireDate(texte);
@@ -339,30 +391,33 @@
       return fmtDateLongue.format(d);
     }
 
-    function totaux(liste) {
+    /* calculs:début */
+    function totaux(liste, coutKm = 0) {
       const n = liste.length;
       const km = liste.reduce((a, c) => a + c.km, 0);
       const euros = liste.reduce((a, c) => a + c.euros, 0);
       const chrono = liste.filter((c) => c.minutes > 0);
       const minutes = chrono.reduce((a, c) => a + c.minutes, 0);
       const eurosChrono = chrono.reduce((a, c) => a + c.euros, 0);
-      const cout = etat.reglages.coutKm;
       return {
         n, km, euros,
         parKm: km > 0 ? euros / km : null,
         parCourse: n ? euros / n : null,
         parHeure: minutes > 0 ? eurosChrono / (minutes / 60) : null,
-        net: cout > 0 ? euros - km * cout : null,
+        net: coutKm > 0 ? euros - km * coutKm : null,
       };
     }
+    /* calculs:fin */
+
+    const calculer = (liste) => totaux(liste, etat.reglages.coutKm);
 
     let minuteurToast;
-    function toast(message) {
+    function toast(message, duree = 2200) {
       const t = $('#toast');
       t.textContent = message;
       t.classList.add('on');
       clearTimeout(minuteurToast);
-      minuteurToast = setTimeout(() => t.classList.remove('on'), 2200);
+      minuteurToast = setTimeout(() => t.classList.remove('on'), duree);
     }
 
     function seg(options, courant, onChoix) {
@@ -402,7 +457,7 @@
       const liste = etat.courses
         .filter((c) => c.date >= p.debut && c.date <= p.fin && (!etat.filtre || c.plateforme === etat.filtre))
         .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id.localeCompare(a.id)));
-      const t = totaux(liste);
+      const t = calculer(liste);
 
       const racine = h('div', { class: 'stack' });
 
@@ -443,7 +498,7 @@
         for (const c of liste) {
           if (c.date !== dernier) {
             dernier = c.date;
-            const jour = totaux(liste.filter((x) => x.date === c.date));
+            const jour = calculer(liste.filter((x) => x.date === c.date));
             carteListe.append(h('div', { class: 'jour' }, h('h3', {}, libelleJour(c.date)), h('span', { class: 'muted' }, `${fmtEuros.format(jour.euros)} · ${fmtNb.format(jour.km)} km`)));
           }
           const detail = [c.plateforme, c.minutes ? `${c.minutes} min` : '', c.note].filter(Boolean).join(' · ');
@@ -496,7 +551,7 @@
         }
       }
       return seaux.map((x) => {
-        const t = totaux(etat.courses.filter(x.test));
+        const t = calculer(etat.courses.filter(x.test));
         return { etiquette: x.etiquette, valeur: etat.metrique === 'euros' ? t.euros : etat.metrique === 'km' ? t.km : t.parKm || 0 };
       });
     }
@@ -508,7 +563,7 @@
         racine.append(h('div', { class: 'carte vide' }, h('p', {}, 'Les statistiques apparaîtront dès que tu auras ajouté des courses.')));
         return racine;
       }
-      const tout = totaux(etat.courses);
+      const tout = calculer(etat.courses);
       const jours = new Set(etat.courses.map((c) => c.date));
 
       const formatValeur = etat.metrique === 'perKm' ? (v) => fmtNb.format(Math.round(v * 100) / 100) : (v) => String(Math.round(v));
@@ -531,7 +586,7 @@
       // Plateformes
       const groupes = {};
       for (const c of etat.courses) (groupes[c.plateforme || 'Sans plateforme'] ||= []).push(c);
-      const lignes = Object.entries(groupes).map(([nom, l]) => [nom, totaux(l)]).sort((a, b) => b[1].euros - a[1].euros);
+      const lignes = Object.entries(groupes).map(([nom, l]) => [nom, calculer(l)]).sort((a, b) => b[1].euros - a[1].euros);
       const maxEuros = lignes[0][1].euros;
       duo.append(h('div', { class: 'carte' }, h('h2', {}, 'Par plateforme'),
         lignes.map(([nom, t]) => h('div', { class: 'ligne-plat' },
@@ -574,7 +629,7 @@
         const pk = e / k;
         sortie.append(h('div', { class: 'gros' }, `${fmtEuros.format(pk)} / km`));
         if (r.seuilKm > 0) sortie.append(h('p', { class: pk >= r.seuilKm ? 'ok' : 'ko' }, pk >= r.seuilKm ? `Au-dessus de ton seuil (${fmtEuros.format(r.seuilKm)} / km)` : `Sous ton seuil (${fmtEuros.format(r.seuilKm)} / km)`));
-        const moyenne = totaux(etat.courses).parKm;
+        const moyenne = calculer(etat.courses).parKm;
         if (moyenne !== null) {
           const ecart = pk - moyenne;
           sortie.append(h('p', { class: 'muted' }, `${ecart >= 0 ? '+' : '−'}${fmtEuros.format(Math.abs(ecart))} / km par rapport à ta moyenne (${fmtEuros.format(moyenne)})`));
@@ -590,7 +645,7 @@
       // Objectif hebdomadaire
       const auj = aujourdhui();
       const debut = debutSemaine(auj);
-      const semaine = totaux(etat.courses.filter((c) => c.date >= iso(debut) && c.date <= iso(ajouterJours(debut, 6))));
+      const semaine = calculer(etat.courses.filter((c) => c.date >= iso(debut) && c.date <= iso(ajouterJours(debut, 6))));
       const carteObjectif = h('div', { class: 'carte' }, h('h2', {}, 'Objectif de la semaine'));
       if (r.objectifSemaine > 0) {
         const reste = Math.max(0, r.objectifSemaine - semaine.euros);
@@ -623,7 +678,7 @@
         const n = t === '' ? 0 : lireNombre(t);
         if (n === null) { toast('Valeur invalide.'); rendu(); return; }
         etat.reglages[cle] = n;
-        sauvegarder();
+        sauver();
         rendu();
       });
       return el;
@@ -634,7 +689,7 @@
       const racine = h('div', { class: 'stack' });
 
       racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Apparence'),
-        seg([['auto', 'Auto'], ['light', 'Clair'], ['dark', 'Sombre']], r.theme, (t) => { r.theme = t; appliquerTheme(); sauvegarder(); rendu(); })));
+        seg([['auto', 'Auto'], ['light', 'Clair'], ['dark', 'Sombre']], r.theme, (t) => { r.theme = t; appliquerTheme(); sauver(); rendu(); })));
 
       racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Objectifs et frais'),
         h('div', { class: 'reglage' }, h('div', {}, 'Coût au km', h('small', {}, 'Carburant, entretien, usure (€ / km)')), champNombre('coutKm', r.coutKm, '0,12')),
@@ -647,13 +702,13 @@
         if (!nom) return;
         if (r.plateformes.some((p) => p.toLowerCase() === nom.toLowerCase())) { toast('Cette plateforme existe déjà.'); return; }
         r.plateformes.push(nom);
-        sauvegarder();
+        sauver();
         rendu();
       };
       nouveau.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); ajouter(); } });
       racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Plateformes'),
         h('div', { class: 'tags' }, r.plateformes.map((nom) => h('span', { class: 'tag' }, nom,
-          h('button', { type: 'button', 'aria-label': `Retirer ${nom}`, onclick: () => { r.plateformes = r.plateformes.filter((p) => p !== nom); sauvegarder(); rendu(); } }, '×')))),
+          h('button', { type: 'button', 'aria-label': `Retirer ${nom}`, onclick: () => { r.plateformes = r.plateformes.filter((p) => p !== nom); sauver(); rendu(); } }, '×')))),
         h('div', { class: 'ajout' }, nouveau, h('button', { class: 'ghost', type: 'button', onclick: ajouter }, 'Ajouter'))));
 
       racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Données'),
@@ -700,7 +755,7 @@
         const connus = new Set(etat.courses.map((c) => c.id));
         const nouvelles = entrantes.filter((c) => !connus.has(c.id));
         etat.courses.push(...nouvelles);
-        sauvegarder();
+        sauver();
         rendu();
         toast(`${nouvelles.length} course(s) ajoutée(s)`);
       } catch (err) {
@@ -713,7 +768,7 @@
       if (!window.confirm('Dernière confirmation : cette action est définitive.')) return;
       etat.courses = [];
       etat.reglages = { ...PAR_DEFAUT, plateformes: [...PAR_DEFAUT.plateformes] };
-      sauvegarder();
+      sauver();
       appliquerTheme();
       rendu();
       toast('Données effacées');
@@ -773,22 +828,23 @@
       if (minutes === null) { err.textContent = 'La durée doit être un nombre de minutes.'; champs.min.focus(); return; }
 
       const donnees = { date: champs.date.value, km, euros, plateforme: champs.plat.value, minutes: Math.round(minutes), note: champs.note.value.trim() };
-      if (etat.edition) {
-        Object.assign(etat.courses.find((c) => c.id === etat.edition), donnees);
+      const existante = etat.edition && etat.courses.find((c) => c.id === etat.edition);
+      if (existante) {
+        Object.assign(existante, donnees);
       } else {
         etat.courses.push({ id: `${Date.now()}${Math.floor(Math.random() * 1000)}`, ...donnees });
       }
-      sauvegarder();
+      sauver();
       fermerDialogue();
       rendu();
-      toast(etat.edition ? 'Course modifiée' : 'Course ajoutée');
+      toast(existante ? 'Course modifiée' : 'Course ajoutée');
     });
 
     $('#f-annuler').addEventListener('click', fermerDialogue);
     $('#f-suppr').addEventListener('click', () => {
       if (!window.confirm('Supprimer cette course ?')) return;
       etat.courses = etat.courses.filter((c) => c.id !== etat.edition);
-      sauvegarder();
+      sauver();
       fermerDialogue();
       rendu();
       toast('Course supprimée');
@@ -824,8 +880,22 @@
       if (b) allerA(b.dataset.vue);
     });
 
+    $('#bandeau-export').addEventListener('click', exporterJson);
+
+    // Une autre fenêtre de l’appli a modifié les données : on les recharge pour ne pas les écraser.
+    window.addEventListener('storage', (e) => {
+      if (e.key !== null && e.key !== CLE) return;
+      Object.assign(etat, charger());
+      appliquerTheme();
+      rendu();
+    });
+
     appliquerTheme();
     rendu();
+    $('#bandeau').hidden = etat.stockageOk;
+    if (etat.alerte) toast(etat.alerte, 6000);
+    // Demande un stockage durable au navigateur ; son effet sur Safari n’est pas garanti.
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   </script>
 </body>
 </html>
