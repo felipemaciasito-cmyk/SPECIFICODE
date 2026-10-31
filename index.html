@@ -275,10 +275,18 @@
     /* calculs:début */
     function nettoyer(liste) {
       if (!Array.isArray(liste)) return [];
+      // Sans identifiant, on en déduit un du contenu (+ n° d'occurrence) : un même fichier réimporté
+      // retombe sur les mêmes ids et n'est pas dupliqué, tout en gardant deux courses réellement identiques.
+      const vues = {};
+      const idDeduit = (c) => {
+        const base = [c.date, c.km, c.euros, c.plateforme, c.minutes, c.note].join('|');
+        vues[base] = (vues[base] || 0) + 1;
+        return `auto:${base}:${vues[base]}`;
+      };
       return liste
         .filter((c) => c && /^\d{4}-\d{2}-\d{2}$/.test(c.date) && Number.isFinite(c.km) && c.km > 0 && Number.isFinite(c.euros) && c.euros >= 0)
         .map((c) => ({
-          id: String(c.id ?? Date.now() + Math.random()),
+          id: String(c.id ?? idDeduit(c)),
           date: c.date,
           km: c.km,
           euros: c.euros,
@@ -306,7 +314,9 @@
     }
 
     function charger() {
-      const resultat = { courses: [], reglages: { ...PAR_DEFAUT }, alerte: '' };
+      // Copie du tableau des plateformes : sinon « Nouvelle plateforme » modifierait PAR_DEFAUT lui-même.
+      const defauts = () => ({ ...PAR_DEFAUT, plateformes: [...PAR_DEFAUT.plateformes] });
+      const resultat = { courses: [], reglages: defauts(), alerte: '' };
       try {
         const brut = localStorage.getItem(CLE);
         if (brut) {
@@ -314,7 +324,7 @@
             const d = JSON.parse(brut);
             const lues = Array.isArray(d.courses) ? d.courses : [];
             resultat.courses = nettoyer(lues);
-            resultat.reglages = { ...PAR_DEFAUT, ...d.reglages };
+            resultat.reglages = { ...defauts(), ...d.reglages };
             const ecartees = lues.length - resultat.courses.length;
             if (ecartees > 0) {
               mettreDeCote(brut);
@@ -477,9 +487,11 @@
         h('div', { class: 'kpis' }, secondaires));
 
       if (etat.reglages.objectifSemaine > 0 && etat.mode === 'semaine' && etat.decalage === 0) {
+        // Toutes plateformes confondues : le filtre n'affecte que la liste affichée, pas l'objectif.
+        const semaine = calculer(etat.courses.filter((c) => c.date >= p.debut && c.date <= p.fin));
         carte.append(h('div', { style: 'margin-top:20px' },
-          h('div', { class: 'etiquette' }, `Objectif de la semaine : ${fmtEuros0.format(t.euros)} sur ${fmtEuros0.format(etat.reglages.objectifSemaine)}`),
-          piste(t.euros, etat.reglages.objectifSemaine)));
+          h('div', { class: 'etiquette' }, `Objectif de la semaine : ${fmtEuros0.format(semaine.euros)} sur ${fmtEuros0.format(etat.reglages.objectifSemaine)}`),
+          piste(semaine.euros, etat.reglages.objectifSemaine)));
       }
       racine.append(carte);
 
