@@ -617,6 +617,7 @@
       racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Repères'),
         h('div', { class: 'records' },
           h('div', {}, h('span', {}, 'Total'), h('strong', {}, `${fmtEuros.format(tout.euros)} · ${fmtNb.format(tout.km)} km · ${tout.n} courses`)),
+          h('div', {}, h('span', {}, 'Gain moyen par course'), h('strong', {}, fmtEuros.format(tout.parCourse))),
           h('div', {}, h('span', {}, 'Moyenne par jour travaillé'), h('strong', {}, `${fmtEuros.format(tout.euros / jours.size)} sur ${jours.size} jours`)),
           meilleure ? h('div', {}, h('span', {}, 'Meilleure course (≥ 1 km)'), h('strong', {}, `${fmtEuros.format(meilleure.euros / meilleure.km)} / km`)) : null,
           h('div', {}, h('span', {}, 'Meilleur jour'), h('strong', {}, `${fmtEuros.format(eurosRecord)} · ${fmtDateCourte.format(lireDate(dateRecord))}`)),
