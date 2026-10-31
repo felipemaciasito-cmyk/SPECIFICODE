@@ -53,6 +53,64 @@ test('lireNombre : valeurs invalides renvoient null', () => {
   for (const v of ['', 'abc', '-3', '1,2,3', '3.', '1e3']) assert.equal(lireNombre(v), null, `« ${v} »`);
 });
 
+test('lireNombre : montant vide, espaces seuls et virgule seule sont invalides', () => {
+  for (const v of ['', '   ', ',', '.', ',5', '5,']) assert.equal(lireNombre(v), null, `« ${v} »`);
+});
+
+test('lireNombre : zéro est un nombre valide (le contrôle > 0 est fait ailleurs)', () => {
+  assert.equal(lireNombre('0'), 0);
+  assert.equal(lireNombre('0,00'), 0);
+});
+
+test('lireNombre : négatif et notation scientifique rejetés', () => {
+  for (const v of ['-0', '-0,5', '+3', '1e-3', 'Infinity']) assert.equal(lireNombre(v), null, `« ${v} »`);
+});
+
+test('nettoyer : distance à 0 et négative écartées', () => {
+  const r = nettoyer([
+    { date: '2026-10-31', km: 0, euros: 5 },
+    { date: '2026-10-31', km: -2, euros: 5 },
+    { date: '2026-10-31', km: NaN, euros: 5 },
+    { date: '2026-10-31', km: Infinity, euros: 5 },
+  ]);
+  assert.equal(r.length, 0);
+});
+
+test('nettoyer : montant à 0 accepté, montant négatif ou absent écarté', () => {
+  assert.equal(nettoyer([{ date: '2026-10-31', km: 3, euros: 0 }]).length, 1);
+  assert.equal(nettoyer([{ date: '2026-10-31', km: 3, euros: -0.01 }]).length, 0);
+  assert.equal(nettoyer([{ date: '2026-10-31', km: 3 }]).length, 0);
+  assert.equal(nettoyer([{ date: '2026-10-31', km: 3, euros: null }]).length, 0);
+});
+
+test('nettoyer : dates impossibles écartées (pas de débordement silencieux)', () => {
+  for (const d of ['2026-02-30', '2026-13-01', '2026-00-10', '2026-10-32', '2026-02-29']) {
+    assert.equal(nettoyer([{ date: d, km: 3, euros: 5 }]).length, 0, d);
+  }
+  assert.equal(nettoyer([{ date: '2028-02-29', km: 3, euros: 5 }]).length, 1, 'année bissextile valide');
+});
+
+test('nettoyer : durée négative, NaN ou absente donnent 0 minute', () => {
+  for (const minutes of [-5, NaN, undefined, '30']) {
+    assert.equal(nettoyer([{ date: '2026-10-31', km: 3, euros: 5, minutes }])[0].minutes, 0, String(minutes));
+  }
+});
+
+test('totaux : course à 0 km ne fait pas diviser par zéro', () => {
+  const t = totaux([{ km: 0, euros: 5, minutes: 0 }]);
+  assert.equal(t.parKm, null);
+  proche(t.parCourse, 5);
+  assert.equal(t.net, null);
+  const u = totaux([{ km: 0, euros: 5, minutes: 0 }], 0.2);
+  proche(u.net, 5);
+});
+
+test('totaux : montant à 0 donne 0 € / km, pas null', () => {
+  const t = totaux([{ km: 4, euros: 0, minutes: 0 }]);
+  assert.equal(t.parKm, 0);
+  assert.equal(t.parCourse, 0);
+});
+
 test('nettoyer : écarte les entrées invalides et complète les champs', () => {
   const brut = [
     { id: 'a', date: '2026-10-31', km: 3, euros: 5 },

@@ -74,6 +74,21 @@ const etape = (nom) => { ok++; console.log(`  ok   ${nom}`); };
   assert.match(await p.textContent('#liste, #app'), /2 km/);
   etape('migration des données de la première version');
 
+  // 5b. Saisies invalides dans le formulaire : message d'erreur, rien d'enregistré
+  const nombre = async () => ((await lire(p)) || { courses: [] }).courses.length;
+  const avant = await nombre();
+  const saisies = [['5', ''], ['0', '5'], ['-2', '5'], ['', '']];
+  for (const [km, eur] of saisies) {
+    await p.click('#btn-ajout');
+    await p.fill('#f-km', km);
+    await p.fill('#f-eur', eur);
+    await p.click('#f button[type=submit]');
+    assert.notEqual(await p.textContent('#f-err'), '', `« ${km} / ${eur} » doit afficher une erreur`);
+    await p.keyboard.press('Escape');
+  }
+  assert.equal(await nombre(), avant);
+  etape('montant vide, distance 0 ou négative : erreur affichée, aucune course ajoutée');
+
   // 6. Échec d'écriture : bandeau visible
   await p.evaluate(() => { Storage.prototype.setItem = () => { throw new Error('quota'); }; });
   await ajouter(p, '1', '1');

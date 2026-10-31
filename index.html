@@ -273,10 +273,16 @@
     };
 
     /* calculs:début */
+    // Vérifie qu’une date « AAAA-MM-JJ » existe vraiment (écarte 2026-02-30). Autonome : appelée avant l’initialisation des autres helpers.
+    function dateExiste(t) {
+      const [a, m, j] = t.split('-').map(Number);
+      const d = new Date(a, m - 1, j);
+      return d.getFullYear() === a && d.getMonth() === m - 1 && d.getDate() === j;
+    }
     function nettoyer(liste) {
       if (!Array.isArray(liste)) return [];
       return liste
-        .filter((c) => c && /^\d{4}-\d{2}-\d{2}$/.test(c.date) && Number.isFinite(c.km) && c.km > 0 && Number.isFinite(c.euros) && c.euros >= 0)
+        .filter((c) => c && /^\d{4}-\d{2}-\d{2}$/.test(c.date) && dateExiste(c.date) &&Number.isFinite(c.km) && c.km > 0 && Number.isFinite(c.euros) && c.euros >= 0)
         .map((c) => ({
           id: String(c.id ?? Date.now() + Math.random()),
           date: c.date,
