@@ -181,6 +181,7 @@
       opacity: 0; pointer-events: none; transition: .25s; z-index: 20; font-size: 15px;
     }
     #toast.on { opacity: 1; transform: translate(-50%, 0); }
+    .alerte { max-width: 1080px; margin: 16px auto 0; padding: 12px 20px; border: 1px solid var(--warn); border-radius: 12px; background: var(--surface); color: var(--warn); }
   </style>
 </head>
 <body>
@@ -196,6 +197,8 @@
       <button class="primaire" id="btn-ajout" type="button">+ Course</button>
     </div>
   </header>
+
+  <div id="alerte" class="alerte" role="alert" hidden></div>
 
   <main id="app"></main>
 
@@ -226,6 +229,7 @@
 
   <input type="file" id="fichier" accept="application/json,.json" hidden>
 
+  <script src="calculs.js"></script>
   <script>
     const CLE = 'courses-livraison-v2';
     const CLE_V1 = 'courses-livraison-v1';
@@ -243,8 +247,10 @@
     const fmtDateLongue = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
     const fmtDateCourte = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
     const fmtMois = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
+    const fmtHeure = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
     /* ---------- Données ---------- */
+    let erreurChargement = null;
     const etat = {
       ...charger(),
       vue: 'courses',
@@ -256,39 +262,46 @@
       edition: null,
     };
 
-    function nettoyer(liste) {
-      if (!Array.isArray(liste)) return [];
-      return liste
-        .filter((c) => c && /^\d{4}-\d{2}-\d{2}$/.test(c.date) && Number.isFinite(c.km) && c.km > 0 && Number.isFinite(c.euros) && c.euros >= 0)
-        .map((c) => ({
-          id: String(c.id ?? Date.now() + Math.random()),
-          date: c.date,
-          km: c.km,
-          euros: c.euros,
-          plateforme: typeof c.plateforme === 'string' ? c.plateforme : '',
-          minutes: Number.isFinite(c.minutes) && c.minutes > 0 ? c.minutes : 0,
-          note: typeof c.note === 'string' ? c.note : '',
-        }));
-    }
-
     function charger() {
       try {
         const brut = localStorage.getItem(CLE);
         if (brut) {
           const d = JSON.parse(brut);
-          return { courses: nettoyer(d.courses), reglages: { ...PAR_DEFAUT, ...d.reglages } };
+          return { courses: nettoyer(d.courses), reglages: { ...PAR_DEFAUT, ...d.reglages }, sauvegardeLe: d.sauvegardeLe };
         }
         const v1 = localStorage.getItem(CLE_V1);
         if (v1) return { courses: nettoyer(JSON.parse(v1)), reglages: { ...PAR_DEFAUT } };
-      } catch (e) { /* stockage indisponible ou illisible */ }
+      } catch (e) {
+        erreurChargement = e;
+      }
       return { courses: [], reglages: { ...PAR_DEFAUT } };
     }
 
+    function afficherAlerte(message) {
+      const zone = $('#alerte');
+      zone.textContent = message;
+      zone.hidden = false;
+    }
+
+    function masquerAlerte() {
+      $('#alerte').hidden = true;
+    }
+
+    let persistanceDemandee = false;
     function sauvegarder() {
+      const maintenant = new Date().toISOString();
       try {
-        localStorage.setItem(CLE, JSON.stringify({ courses: etat.courses, reglages: etat.reglages }));
+        localStorage.setItem(CLE, JSON.stringify({ courses: etat.courses, reglages: etat.reglages, sauvegardeLe: maintenant }));
       } catch (e) {
-        toast('Impossible d’enregistrer sur cet appareil.');
+        afficherAlerte('Enregistrement impossible : les modifications ne seront pas conservées après fermeture de la page.');
+        return;
+      }
+      etat.sauvegardeLe = maintenant;
+      masquerAlerte();
+      // Demande au navigateur de ne pas effacer ces données ; il peut refuser.
+      if (!persistanceDemandee && navigator.storage && navigator.storage.persist) {
+        persistanceDemandee = true;
+        navigator.storage.persist();
       }
     }
 
@@ -318,18 +331,7 @@
       return el;
     }
 
-    const pad = (n) => String(n).padStart(2, '0');
-    const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const lireDate = (t) => { const [a, m, j] = t.split('-').map(Number); return new Date(a, m - 1, j); };
-    const ajouterJours = (d, n) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; };
-    const debutSemaine = (d) => ajouterJours(d, -((d.getDay() + 6) % 7));
     const aujourdhui = () => new Date();
-
-    // Accepte « 4,2 » comme « 4.2 ». Renvoie null si ce n’est pas un nombre valide.
-    function lireNombre(texte) {
-      const t = texte.trim().replace(',', '.');
-      return /^\d+(\.\d+)?$/.test(t) ? Number(t) : null;
-    }
 
     function libelleJour(texte) {
       const d = lireDate(texte);
@@ -337,23 +339,6 @@
       if (delta === 0) return 'Aujourd’hui';
       if (delta === 1) return 'Hier';
       return fmtDateLongue.format(d);
-    }
-
-    function totaux(liste) {
-      const n = liste.length;
-      const km = liste.reduce((a, c) => a + c.km, 0);
-      const euros = liste.reduce((a, c) => a + c.euros, 0);
-      const chrono = liste.filter((c) => c.minutes > 0);
-      const minutes = chrono.reduce((a, c) => a + c.minutes, 0);
-      const eurosChrono = chrono.reduce((a, c) => a + c.euros, 0);
-      const cout = etat.reglages.coutKm;
-      return {
-        n, km, euros,
-        parKm: km > 0 ? euros / km : null,
-        parCourse: n ? euros / n : null,
-        parHeure: minutes > 0 ? eurosChrono / (minutes / 60) : null,
-        net: cout > 0 ? euros - km * cout : null,
-      };
     }
 
     let minuteurToast;
@@ -402,7 +387,7 @@
       const liste = etat.courses
         .filter((c) => c.date >= p.debut && c.date <= p.fin && (!etat.filtre || c.plateforme === etat.filtre))
         .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id.localeCompare(a.id)));
-      const t = totaux(liste);
+      const t = totaux(liste, etat.reglages.coutKm);
 
       const racine = h('div', { class: 'stack' });
 
@@ -443,7 +428,7 @@
         for (const c of liste) {
           if (c.date !== dernier) {
             dernier = c.date;
-            const jour = totaux(liste.filter((x) => x.date === c.date));
+            const jour = totaux(liste.filter((x) => x.date === c.date), etat.reglages.coutKm);
             carteListe.append(h('div', { class: 'jour' }, h('h3', {}, libelleJour(c.date)), h('span', { class: 'muted' }, `${fmtEuros.format(jour.euros)} · ${fmtNb.format(jour.km)} km`)));
           }
           const detail = [c.plateforme, c.minutes ? `${c.minutes} min` : '', c.note].filter(Boolean).join(' · ');
@@ -496,7 +481,7 @@
         }
       }
       return seaux.map((x) => {
-        const t = totaux(etat.courses.filter(x.test));
+        const t = totaux(etat.courses.filter(x.test), etat.reglages.coutKm);
         return { etiquette: x.etiquette, valeur: etat.metrique === 'euros' ? t.euros : etat.metrique === 'km' ? t.km : t.parKm || 0 };
       });
     }
@@ -508,7 +493,7 @@
         racine.append(h('div', { class: 'carte vide' }, h('p', {}, 'Les statistiques apparaîtront dès que tu auras ajouté des courses.')));
         return racine;
       }
-      const tout = totaux(etat.courses);
+      const tout = totaux(etat.courses, etat.reglages.coutKm);
       const jours = new Set(etat.courses.map((c) => c.date));
 
       const formatValeur = etat.metrique === 'perKm' ? (v) => fmtNb.format(Math.round(v * 100) / 100) : (v) => String(Math.round(v));
@@ -531,7 +516,7 @@
       // Plateformes
       const groupes = {};
       for (const c of etat.courses) (groupes[c.plateforme || 'Sans plateforme'] ||= []).push(c);
-      const lignes = Object.entries(groupes).map(([nom, l]) => [nom, totaux(l)]).sort((a, b) => b[1].euros - a[1].euros);
+      const lignes = Object.entries(groupes).map(([nom, l]) => [nom, totaux(l, etat.reglages.coutKm)]).sort((a, b) => b[1].euros - a[1].euros);
       const maxEuros = lignes[0][1].euros;
       duo.append(h('div', { class: 'carte' }, h('h2', {}, 'Par plateforme'),
         lignes.map(([nom, t]) => h('div', { class: 'ligne-plat' },
@@ -574,7 +559,7 @@
         const pk = e / k;
         sortie.append(h('div', { class: 'gros' }, `${fmtEuros.format(pk)} / km`));
         if (r.seuilKm > 0) sortie.append(h('p', { class: pk >= r.seuilKm ? 'ok' : 'ko' }, pk >= r.seuilKm ? `Au-dessus de ton seuil (${fmtEuros.format(r.seuilKm)} / km)` : `Sous ton seuil (${fmtEuros.format(r.seuilKm)} / km)`));
-        const moyenne = totaux(etat.courses).parKm;
+        const moyenne = totaux(etat.courses, r.coutKm).parKm;
         if (moyenne !== null) {
           const ecart = pk - moyenne;
           sortie.append(h('p', { class: 'muted' }, `${ecart >= 0 ? '+' : '−'}${fmtEuros.format(Math.abs(ecart))} / km par rapport à ta moyenne (${fmtEuros.format(moyenne)})`));
@@ -590,7 +575,7 @@
       // Objectif hebdomadaire
       const auj = aujourdhui();
       const debut = debutSemaine(auj);
-      const semaine = totaux(etat.courses.filter((c) => c.date >= iso(debut) && c.date <= iso(ajouterJours(debut, 6))));
+      const semaine = totaux(etat.courses.filter((c) => c.date >= iso(debut) && c.date <= iso(ajouterJours(debut, 6))), r.coutKm);
       const carteObjectif = h('div', { class: 'carte' }, h('h2', {}, 'Objectif de la semaine'));
       if (r.objectifSemaine > 0) {
         const reste = Math.max(0, r.objectifSemaine - semaine.euros);
@@ -657,7 +642,7 @@
         h('div', { class: 'ajout' }, nouveau, h('button', { class: 'ghost', type: 'button', onclick: ajouter }, 'Ajouter'))));
 
       racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Données'),
-        h('p', { class: 'muted', style: 'margin-bottom:14px' }, `${etat.courses.length} course${etat.courses.length > 1 ? 's' : ''} enregistrée${etat.courses.length > 1 ? 's' : ''} sur cet appareil. Pense à exporter une sauvegarde de temps en temps.`),
+        h('p', { class: 'muted', style: 'margin-bottom:14px' }, `${etat.courses.length} course${etat.courses.length > 1 ? 's' : ''} enregistrée${etat.courses.length > 1 ? 's' : ''} sur cet appareil.${etat.sauvegardeLe ? ` Dernière sauvegarde : ${fmtHeure.format(new Date(etat.sauvegardeLe))}.` : ''} Pense à exporter une sauvegarde de temps en temps.`),
         h('div', { class: 'actions-groupe' },
           h('button', { class: 'ghost', type: 'button', onclick: exporterJson }, 'Exporter (JSON)'),
           h('button', { class: 'ghost', type: 'button', onclick: exporterCsv }, 'Exporter (CSV)'),
@@ -824,6 +809,9 @@
       if (b) allerA(b.dataset.vue);
     });
 
+    if (erreurChargement) {
+      afficherAlerte('Les courses enregistrées sur cet appareil n’ont pas pu être lues. L’appli démarre vide, et la prochaine modification remplacera ces données.');
+    }
     appliquerTheme();
     rendu();
   </script>
