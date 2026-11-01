@@ -1,918 +1,2308 @@
 <!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f5f4f0">
-  <title>Courses</title>
-  <style>
-    :root {
-      --bg: #f5f4f0;
-      --surface: #fffefb;
-      --ink: #17171a;
-      --muted: #86857f;
-      --line: #e4e2da;
-      --soft: #efede6;
-      --accent: #2f6f5e;
-      --accent-ink: #ffffff;
-      --warn: #b4532a;
-      --radius: 18px;
-      --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", Arial, sans-serif;
-      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --bg: #0e0e0f; --surface: #161617; --ink: #eeede8; --muted: #8e8d87;
-        --line: #2a2a2b; --soft: #1f1f20; --accent: #6fcfb0; --accent-ink: #0e0e0f; --warn: #e08a63;
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f5f4f0" />
+    <title>Courses</title>
+    <style>
+      :root {
+        --bg: #f5f4f0;
+        --surface: #fffefb;
+        --ink: #17171a;
+        --muted: #86857f;
+        --line: #e4e2da;
+        --soft: #efede6;
+        --accent: #2f6f5e;
+        --accent-ink: #ffffff;
+        --warn: #b4532a;
+        --radius: 18px;
+        --display:
+          -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter",
+          "Helvetica Neue", Arial, sans-serif;
+        --sans:
+          -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
+          Arial, sans-serif;
       }
-    }
-    :root[data-theme="dark"] {
-      --bg: #0e0e0f; --surface: #161617; --ink: #eeede8; --muted: #8e8d87;
-      --line: #2a2a2b; --soft: #1f1f20; --accent: #6fcfb0; --accent-ink: #0e0e0f; --warn: #e08a63;
-    }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0e0e0f;
+          --surface: #161617;
+          --ink: #eeede8;
+          --muted: #8e8d87;
+          --line: #2a2a2b;
+          --soft: #1f1f20;
+          --accent: #6fcfb0;
+          --accent-ink: #0e0e0f;
+          --warn: #e08a63;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #0e0e0f;
+        --surface: #161617;
+        --ink: #eeede8;
+        --muted: #8e8d87;
+        --line: #2a2a2b;
+        --soft: #1f1f20;
+        --accent: #6fcfb0;
+        --accent-ink: #0e0e0f;
+        --warn: #e08a63;
+      }
 
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
-    body {
-      margin: 0; background: var(--bg); color: var(--ink);
-      font: 16px/1.45 var(--sans);
-      font-feature-settings: "tnum";
-      -webkit-font-smoothing: antialiased;
-      letter-spacing: -0.006em;
-    }
-    button, input, select { font: inherit; color: inherit; }
-    button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    h1, h2, h3, p { margin: 0; }
-    .muted { color: var(--muted); }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 16px/1.45 var(--sans);
+        font-feature-settings: "tnum";
+        -webkit-font-smoothing: antialiased;
+        letter-spacing: -0.006em;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+        color: inherit;
+      }
+      button {
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      .muted {
+        color: var(--muted);
+      }
 
-    /* En-tête */
-    header {
-      position: sticky; top: 0; z-index: 5;
-      background: color-mix(in srgb, var(--bg) 86%, transparent);
-      -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--line);
-    }
-    .bar {
-      max-width: 1080px; margin: 0 auto;
-      padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
-      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-    }
-    .marque { font: 600 20px var(--display); letter-spacing: -0.02em; margin-right: auto; }
-    nav { display: flex; gap: 2px; background: var(--soft); border-radius: 999px; padding: 3px; }
-    nav button {
-      border: 0; background: transparent; color: var(--muted);
-      min-height: 40px; padding: 0 16px; border-radius: 999px; font-weight: 500;
-    }
-    nav button.on { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
-    .primaire {
-      border: 0; background: var(--ink); color: var(--bg);
-      min-height: 44px; padding: 0 20px; border-radius: 999px; font-weight: 600;
-    }
-    .primaire:active { opacity: .8; }
-    .ghost {
-      border: 1px solid var(--line); background: transparent;
-      min-height: 44px; padding: 0 18px; border-radius: 999px; font-weight: 500;
-    }
-    .ghost:active { background: var(--soft); }
-    @media (max-width: 640px) { nav { order: 3; width: 100%; } nav button { flex: 1; padding: 0 6px; } }
+      /* En-tête */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: color-mix(in srgb, var(--bg) 86%, transparent);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--line);
+      }
+      .bar {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 12px max(20px, env(safe-area-inset-right)) 12px
+          max(20px, env(safe-area-inset-left));
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .marque {
+        font: 600 20px var(--display);
+        letter-spacing: -0.02em;
+        margin-right: auto;
+      }
+      nav {
+        display: flex;
+        gap: 2px;
+        background: var(--soft);
+        border-radius: 999px;
+        padding: 3px;
+      }
+      nav button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 999px;
+        font-weight: 500;
+      }
+      nav button.on {
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      .primaire {
+        border: 0;
+        background: var(--ink);
+        color: var(--bg);
+        min-height: 44px;
+        padding: 0 20px;
+        border-radius: 999px;
+        font-weight: 600;
+      }
+      .primaire:active {
+        opacity: 0.8;
+      }
+      .ghost {
+        border: 1px solid var(--line);
+        background: transparent;
+        min-height: 44px;
+        padding: 0 18px;
+        border-radius: 999px;
+        font-weight: 500;
+      }
+      .ghost:active {
+        background: var(--soft);
+      }
+      .icone {
+        width: 44px;
+        padding: 0;
+        font-size: 18px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      @media (max-width: 640px) {
+        nav {
+          order: 3;
+          width: 100%;
+        }
+        nav button {
+          flex: 1;
+          padding: 0 6px;
+        }
+      }
 
-    main { max-width: 1080px; margin: 0 auto; padding: 24px max(20px, env(safe-area-inset-right)) 80px max(20px, env(safe-area-inset-left)); }
-    section + section, .stack > * + * { margin-top: 20px; }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 24px max(20px, env(safe-area-inset-right)) 80px
+          max(20px, env(safe-area-inset-left));
+      }
+      section + section,
+      .stack > * + * {
+        margin-top: 20px;
+      }
 
-    .carte { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
-    .carte h2 { font: 500 13px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
-    .grille-2 { display: grid; gap: 20px; }
-    @media (min-width: 860px) { .grille-2 { grid-template-columns: 1fr 1fr; align-items: start; } }
+      .carte {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px;
+      }
+      .carte h2 {
+        font: 500 13px var(--sans);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+      .grille-2 {
+        display: grid;
+        gap: 20px;
+      }
+      @media (min-width: 860px) {
+        .grille-2 {
+          grid-template-columns: 1fr 1fr;
+          align-items: start;
+        }
+      }
 
-    /* Contrôles segmentés */
-    .seg { display: inline-flex; background: var(--soft); border-radius: 999px; padding: 3px; }
-    .seg button { border: 0; background: transparent; color: var(--muted); min-height: 38px; padding: 0 16px; border-radius: 999px; font-weight: 500; }
-    .seg button.on { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
-    .rangee { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-    .periode { display: flex; align-items: center; gap: 4px; }
-    .periode .libelle { min-width: 190px; text-align: center; font-weight: 600; }
-    .periode .libelle::first-letter, .jour h3::first-letter { text-transform: uppercase; }
-    .rond { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: transparent; font-size: 20px; line-height: 1; }
-    .rond:disabled { opacity: .3; }
+      /* Contrôles segmentés */
+      .seg {
+        display: inline-flex;
+        background: var(--soft);
+        border-radius: 999px;
+        padding: 3px;
+      }
+      .seg button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        min-height: 38px;
+        padding: 0 16px;
+        border-radius: 999px;
+        font-weight: 500;
+      }
+      .seg button.on {
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      .rangee {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .periode {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .periode .libelle {
+        min-width: 190px;
+        text-align: center;
+        font-weight: 600;
+      }
+      .periode .libelle::first-letter,
+      .jour h3::first-letter {
+        text-transform: uppercase;
+      }
+      .rond {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        background: transparent;
+        font-size: 20px;
+        line-height: 1;
+      }
+      .rond:disabled {
+        opacity: 0.3;
+      }
 
-    /* Chiffres clés */
-    .kpi-hero { padding: 8px 0 22px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
-    .etiquette { font-size: 13px; color: var(--muted); }
-    .gros { font: 300 56px/1.05 var(--display); letter-spacing: -0.04em; margin-top: 4px; }
-    .kpi-hero .gros { font-weight: 700; }
-    .kpis { display: grid; gap: 18px 12px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
-    .kpi .valeur { font: 500 24px/1.15 var(--display); letter-spacing: -0.025em; margin-top: 2px; overflow-wrap: anywhere; }
+      /* Chiffres clés */
+      .kpi-hero {
+        padding: 8px 0 22px;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 18px;
+      }
+      .etiquette {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .gros {
+        font: 300 56px/1.05 var(--display);
+        letter-spacing: -0.04em;
+        margin-top: 4px;
+      }
+      .kpi-hero .gros {
+        font-weight: 700;
+      }
+      .kpis {
+        display: grid;
+        gap: 18px 12px;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      }
+      .kpi .valeur {
+        font: 500 24px/1.15 var(--display);
+        letter-spacing: -0.025em;
+        margin-top: 2px;
+        overflow-wrap: anywhere;
+      }
 
-    .piste { height: 6px; border-radius: 3px; background: var(--soft); overflow: hidden; margin-top: 8px; }
-    .piste > i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+      .piste {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--soft);
+        overflow: hidden;
+        margin-top: 8px;
+      }
+      .piste > i {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+        border-radius: 3px;
+      }
 
-    /* Puces */
-    .puces { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 18px; }
-    .puce { border: 1px solid var(--line); background: transparent; min-height: 38px; padding: 0 14px; border-radius: 999px; color: var(--muted); }
-    .puce.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+      /* Puces */
+      .puces {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 4px 0 18px;
+      }
+      .puce {
+        border: 1px solid var(--line);
+        background: transparent;
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: 999px;
+        color: var(--muted);
+      }
+      .puce.on {
+        background: var(--ink);
+        color: var(--bg);
+        border-color: var(--ink);
+      }
 
-    /* Liste */
-    .jour { display: flex; justify-content: space-between; align-items: baseline; padding: 20px 0 8px; border-bottom: 1px solid var(--line); }
-    .jour:first-child { padding-top: 0; }
-    .jour h3 { font: 600 14px var(--sans); }
-    .ligne { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 14px 2px; min-height: 64px; }
-    .ligne:active { background: var(--soft); }
-    .ligne > span { display: grid; gap: 1px; }
-    .ligne > span:last-child { text-align: right; }
-    .ligne-wrap { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--line); }
-    .ligne-wrap .ligne { flex: 1; min-width: 0; border-bottom: 0; }
-    .suppr-ligne { flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; }
-    .suppr-ligne:hover, .suppr-ligne:focus-visible { color: var(--warn); }
-    .ligne-t { font-weight: 600; }
-    .vide { text-align: center; padding: 36px 8px; color: var(--muted); }
-    .vide .primaire { margin-top: 16px; }
+      /* Liste */
+      .jour {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 20px 0 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      .jour:first-child {
+        padding-top: 0;
+      }
+      .jour h3 {
+        font: 600 14px var(--sans);
+      }
+      .ligne {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        text-align: left;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        background: transparent;
+        padding: 14px 2px;
+        min-height: 64px;
+      }
+      .ligne:active {
+        background: var(--soft);
+      }
+      .ligne > span {
+        display: grid;
+        gap: 1px;
+      }
+      .ligne > span:last-child {
+        text-align: right;
+      }
+      .ligne-wrap {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border-bottom: 1px solid var(--line);
+      }
+      .ligne-wrap .ligne {
+        flex: 1;
+        min-width: 0;
+        border-bottom: 0;
+      }
+      .suppr-ligne {
+        flex: none;
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1;
+      }
+      .suppr-ligne:hover,
+      .suppr-ligne:focus-visible {
+        color: var(--warn);
+      }
+      .ligne-t {
+        font-weight: 600;
+      }
+      .vide {
+        text-align: center;
+        padding: 36px 8px;
+        color: var(--muted);
+      }
+      .vide .primaire {
+        margin-top: 16px;
+      }
 
-    /* Graphiques */
-    svg.graph { width: 100%; height: auto; display: block; overflow: visible; }
-    svg .b { fill: var(--ink); opacity: .85; }
-    svg .b.now { fill: var(--accent); opacity: 1; }
-    svg .axe { stroke: var(--line); stroke-width: 1; }
-    svg text { font: 11px var(--sans); fill: var(--muted); text-anchor: middle; }
-    svg text.v { fill: var(--ink); }
-    .outils-graph { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; margin-bottom: 18px; }
+      /* Graphiques */
+      svg.graph {
+        width: 100%;
+        height: auto;
+        display: block;
+        overflow: visible;
+      }
+      svg .b {
+        fill: var(--ink);
+        opacity: 0.85;
+      }
+      svg .b.now {
+        fill: var(--accent);
+        opacity: 1;
+      }
+      svg .axe {
+        stroke: var(--line);
+        stroke-width: 1;
+      }
+      svg text {
+        font: 11px var(--sans);
+        fill: var(--muted);
+        text-anchor: middle;
+      }
+      svg text.v {
+        fill: var(--ink);
+      }
+      .outils-graph {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
 
-    .ligne-plat { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 0; }
-    .ligne-plat .piste { grid-column: 1 / -1; margin-top: 4px; }
-    .records { display: grid; gap: 14px; }
-    .records > div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
-    .records > div:last-child { border-bottom: 0; padding-bottom: 0; }
+      .ligne-plat {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2px 12px;
+        padding: 10px 0;
+      }
+      .ligne-plat .piste {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+      }
+      .records {
+        display: grid;
+        gap: 14px;
+      }
+      .records > div {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 12px;
+      }
+      .records > div:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
 
-    /* Formulaires */
-    label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
-    input, select {
-      width: 100%; min-height: 50px; padding: 10px 14px; color: var(--ink);
-      background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
-      -webkit-appearance: none; appearance: none; font-size: 17px;
-    }
-    select { background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 36px; }
-    input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-    .duo { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
-    .formu { display: grid; gap: 14px; }
-    .reglage { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
-    .reglage:last-child { border-bottom: 0; }
-    .reglage .champ { width: 130px; flex: none; }
-    .reglage small { display: block; color: var(--muted); font-size: 13px; }
-    .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-    .tag { display: inline-flex; align-items: center; gap: 6px; background: var(--soft); border-radius: 999px; padding: 6px 6px 6px 14px; }
-    .tag button { border: 0; background: transparent; color: var(--muted); width: 28px; height: 28px; border-radius: 50%; font-size: 16px; }
-    .ajout { display: flex; gap: 8px; }
-    .actions-groupe { display: flex; gap: 10px; flex-wrap: wrap; }
-    .danger { color: var(--warn); border-color: var(--warn); }
+      /* Formulaires */
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      input,
+      select {
+        width: 100%;
+        min-height: 50px;
+        padding: 10px 14px;
+        color: var(--ink);
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        -webkit-appearance: none;
+        appearance: none;
+        font-size: 17px;
+      }
+      select {
+        background-image:
+          linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+          linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+        background-position:
+          calc(100% - 20px) 55%,
+          calc(100% - 14px) 55%;
+        background-size: 6px 6px;
+        background-repeat: no-repeat;
+        padding-right: 36px;
+      }
+      input:focus,
+      select:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      .duo {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr 1fr;
+      }
+      .formu {
+        display: grid;
+        gap: 14px;
+      }
+      .reglage {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .reglage:last-child {
+        border-bottom: 0;
+      }
+      .reglage .champ {
+        width: 130px;
+        flex: none;
+      }
+      .reglage small {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--soft);
+        border-radius: 999px;
+        padding: 6px 6px 6px 14px;
+      }
+      .tag button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-size: 16px;
+      }
+      .ajout {
+        display: flex;
+        gap: 8px;
+      }
+      .actions-groupe {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .danger {
+        color: var(--warn);
+        border-color: var(--warn);
+      }
 
-    .verdict { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); display: grid; gap: 6px; }
-    .verdict .gros { font-size: 44px; }
-    .ok { color: var(--accent); font-weight: 600; }
-    .ko { color: var(--warn); font-weight: 600; }
+      .verdict {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        display: grid;
+        gap: 6px;
+      }
+      .verdict .gros {
+        font-size: 44px;
+      }
+      .ok {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .ko {
+        color: var(--warn);
+        font-weight: 600;
+      }
 
-    /* Fenêtre de saisie */
-    dialog {
-      border: 1px solid var(--line); border-radius: 22px; background: var(--surface); color: var(--ink);
-      width: min(480px, calc(100vw - 24px)); padding: 24px; margin: auto;
-    }
-    dialog::backdrop { background: rgba(10, 10, 10, .45); }
-    dialog h2 { font: 600 22px var(--display); letter-spacing: -0.02em; margin-bottom: 18px; }
-    .apercu { min-height: 1.4em; color: var(--muted); font-size: 14px; }
-    .err { min-height: 1.2em; color: var(--warn); font-size: 14px; }
-    .actions { display: flex; align-items: center; gap: 10px; }
-    .espace { flex: 1; }
-    .lien-danger { border: 0; background: transparent; color: var(--warn); min-height: 44px; padding: 0 6px; font-weight: 500; }
+      /* Fenêtre de saisie */
+      dialog {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: var(--surface);
+        color: var(--ink);
+        width: min(480px, calc(100vw - 24px));
+        padding: 24px;
+        margin: auto;
+      }
+      dialog::backdrop {
+        background: rgba(10, 10, 10, 0.45);
+      }
+      dialog h2 {
+        font: 600 22px var(--display);
+        letter-spacing: -0.02em;
+        margin-bottom: 18px;
+      }
+      .apercu {
+        min-height: 1.4em;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .err {
+        min-height: 1.2em;
+        color: var(--warn);
+        font-size: 14px;
+      }
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .espace {
+        flex: 1;
+      }
+      .lien-danger {
+        border: 0;
+        background: transparent;
+        color: var(--warn);
+        min-height: 44px;
+        padding: 0 6px;
+        font-weight: 500;
+      }
 
-    #bandeau {
-      background: var(--warn); color: var(--bg); padding: 10px 20px;
-      display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; font-size: 15px;
-    }
-    #bandeau[hidden] { display: none; }
-    #bandeau button { border: 1px solid currentColor; background: transparent; color: inherit; min-height: 36px; padding: 0 14px; border-radius: 999px; font-weight: 600; }
+      #bandeau {
+        background: var(--warn);
+        color: var(--bg);
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 15px;
+      }
+      #bandeau[hidden] {
+        display: none;
+      }
+      #bandeau button {
+        border: 1px solid currentColor;
+        background: transparent;
+        color: inherit;
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 999px;
+        font-weight: 600;
+      }
 
-    #toast {
-      position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translate(-50%, 20px);
-      background: var(--ink); color: var(--bg); padding: 12px 20px; border-radius: 999px;
-      opacity: 0; pointer-events: none; transition: .25s; z-index: 20; font-size: 15px;
-    }
-    #toast.on { opacity: 1; transform: translate(-50%, 0); }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="bar">
-      <h1 class="marque">Courses</h1>
-      <nav id="onglets" aria-label="Sections">
-        <button data-vue="courses">Courses</button>
-        <button data-vue="stats">Statistiques</button>
-        <button data-vue="outils">Outils</button>
-        <button data-vue="reglages">Réglages</button>
-      </nav>
-      <button class="primaire" id="btn-ajout" type="button">+ Course</button>
+      #toast {
+        position: fixed;
+        left: 50%;
+        bottom: max(24px, env(safe-area-inset-bottom));
+        transform: translate(-50%, 20px);
+        background: var(--ink);
+        color: var(--bg);
+        padding: 12px 20px;
+        border-radius: 999px;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.25s;
+        z-index: 20;
+        font-size: 15px;
+      }
+      #toast.on {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <h1 class="marque">Courses</h1>
+        <nav id="onglets" aria-label="Sections">
+          <button data-vue="courses">Courses</button>
+          <button data-vue="stats">Statistiques</button>
+          <button data-vue="outils">Outils</button>
+          <button data-vue="reglages">Réglages</button>
+        </nav>
+        <button
+          class="ghost icone"
+          id="btn-theme"
+          type="button"
+          aria-label="Passer en mode sombre"
+        >
+          ☾
+        </button>
+        <button class="primaire" id="btn-ajout" type="button">+ Course</button>
+      </div>
+    </header>
+
+    <div id="bandeau" role="alert" hidden>
+      <span
+        >Non enregistré sur cet appareil : exporte tes données pour ne rien
+        perdre.</span
+      >
+      <button type="button" id="bandeau-export">Exporter</button>
     </div>
-  </header>
 
-  <div id="bandeau" role="alert" hidden>
-    <span>Non enregistré sur cet appareil : exporte tes données pour ne rien perdre.</span>
-    <button type="button" id="bandeau-export">Exporter</button>
-  </div>
+    <main id="app"></main>
 
-  <main id="app"></main>
+    <dialog id="dlg">
+      <form id="f" novalidate class="formu">
+        <h2 id="dlg-titre">Nouvelle course</h2>
+        <label>Date<input type="date" id="f-date" /></label>
+        <div class="duo">
+          <label
+            >Distance (km)<input
+              id="f-km"
+              inputmode="decimal"
+              placeholder="4,2"
+              autocomplete="off"
+          /></label>
+          <label
+            >Montant (€)<input
+              id="f-eur"
+              inputmode="decimal"
+              placeholder="6,50"
+              autocomplete="off"
+          /></label>
+        </div>
+        <div class="duo">
+          <label>Plateforme<select id="f-plat"></select></label>
+          <label
+            >Durée (min)<input
+              id="f-min"
+              inputmode="numeric"
+              placeholder="facultatif"
+              autocomplete="off"
+          /></label>
+        </div>
+        <label
+          >Note<input
+            id="f-note"
+            maxlength="120"
+            placeholder="facultatif"
+            autocomplete="off"
+        /></label>
+        <p class="apercu" id="f-apercu"></p>
+        <p class="err" id="f-err" role="alert"></p>
+        <div class="actions">
+          <button type="button" class="lien-danger" id="f-suppr">
+            Supprimer
+          </button>
+          <span class="espace"></span>
+          <button type="button" class="ghost" id="f-annuler">Annuler</button>
+          <button type="submit" class="primaire">Enregistrer</button>
+        </div>
+      </form>
+    </dialog>
+    <div id="toast" role="status"></div>
 
-  <dialog id="dlg">
-    <form id="f" novalidate class="formu">
-      <h2 id="dlg-titre">Nouvelle course</h2>
-      <label>Date<input type="date" id="f-date"></label>
-      <div class="duo">
-        <label>Distance (km)<input id="f-km" inputmode="decimal" placeholder="4,2" autocomplete="off"></label>
-        <label>Montant (€)<input id="f-eur" inputmode="decimal" placeholder="6,50" autocomplete="off"></label>
-      </div>
-      <div class="duo">
-        <label>Plateforme<select id="f-plat"></select></label>
-        <label>Durée (min)<input id="f-min" inputmode="numeric" placeholder="facultatif" autocomplete="off"></label>
-      </div>
-      <label>Note<input id="f-note" maxlength="120" placeholder="facultatif" autocomplete="off"></label>
-      <p class="apercu" id="f-apercu"></p>
-      <p class="err" id="f-err" role="alert"></p>
-      <div class="actions">
-        <button type="button" class="lien-danger" id="f-suppr">Supprimer</button>
-        <span class="espace"></span>
-        <button type="button" class="ghost" id="f-annuler">Annuler</button>
-        <button type="submit" class="primaire">Enregistrer</button>
-      </div>
-    </form>
-  </dialog>
-  <div id="toast" role="status"></div>
+    <input type="file" id="fichier" accept="application/json,.json" hidden />
 
-  <input type="file" id="fichier" accept="application/json,.json" hidden>
-
-  <script>
-    const CLE = 'courses-livraison-v2';
-    const CLE_V1 = 'courses-livraison-v1';
-    const CLE_SAUVEGARDE = 'courses-livraison-v2-sauvegarde';
-    const PAR_DEFAUT = {
-      plateformes: ['Uber Eats', 'Deliveroo', 'Just Eat'],
-      coutKm: 0,
-      objectifSemaine: 0,
-      seuilKm: 0,
-      theme: 'auto',
-    };
-
-    const fmtNb = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
-    const fmtEuros = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
-    const fmtEuros0 = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
-    const fmtDateLongue = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    const fmtDateCourte = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
-    const fmtMois = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
-
-    /* ---------- Données ---------- */
-    const etat = {
-      ...charger(),
-      stockageOk: stockageDisponible(),
-      vue: 'courses',
-      mode: 'semaine',
-      decalage: 0,
-      filtre: '',
-      grain: 'jours',
-      metrique: 'euros',
-      edition: null,
-    };
-
-    /* calculs:début */
-    // Vérifie qu’une date « AAAA-MM-JJ » existe vraiment (écarte 2026-02-30). Autonome : appelée avant l’initialisation des autres helpers.
-    function dateExiste(t) {
-      const [a, m, j] = t.split('-').map(Number);
-      const d = new Date(a, m - 1, j);
-      return d.getFullYear() === a && d.getMonth() === m - 1 && d.getDate() === j;
-    }
-    function nettoyer(liste) {
-      if (!Array.isArray(liste)) return [];
-      return liste
-        .filter((c) => c && /^\d{4}-\d{2}-\d{2}$/.test(c.date) && dateExiste(c.date) &&Number.isFinite(c.km) && c.km > 0 && Number.isFinite(c.euros) && c.euros >= 0)
-        .map((c) => ({
-          id: String(c.id ?? Date.now() + Math.random()),
-          date: c.date,
-          km: c.km,
-          euros: c.euros,
-          plateforme: typeof c.plateforme === 'string' ? c.plateforme : '',
-          minutes: Number.isFinite(c.minutes) && c.minutes > 0 ? c.minutes : 0,
-          note: typeof c.note === 'string' ? c.note : '',
-        }));
-    }
-    /* calculs:fin */
-
-    // Teste que le navigateur accepte l’écriture (stockage bloqué, mode privé, plein…).
-    function stockageDisponible() {
-      try {
-        localStorage.setItem('courses-livraison-test', '1');
-        localStorage.removeItem('courses-livraison-test');
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }
-
-    // Garde une copie brute des données que l’appli ne sait pas relire, avant qu’une sauvegarde ne les écrase.
-    function mettreDeCote(brut) {
-      try { localStorage.setItem(CLE_SAUVEGARDE, brut); } catch (e) { /* rien de plus à faire */ }
-    }
-
-    function charger() {
-      const resultat = { courses: [], reglages: { ...PAR_DEFAUT }, alerte: '' };
-      try {
-        const brut = localStorage.getItem(CLE);
-        if (brut) {
-          try {
-            const d = JSON.parse(brut);
-            const lues = Array.isArray(d.courses) ? d.courses : [];
-            resultat.courses = nettoyer(lues);
-            resultat.reglages = { ...PAR_DEFAUT, ...d.reglages };
-            const ecartees = lues.length - resultat.courses.length;
-            if (ecartees > 0) {
-              mettreDeCote(brut);
-              resultat.alerte = `${ecartees} course(s) illisible(s) mise(s) de côté.`;
-            }
-          } catch (e) {
-            mettreDeCote(brut);
-            resultat.alerte = 'Données illisibles : une copie a été conservée.';
-          }
-          return resultat;
-        }
-        const v1 = localStorage.getItem(CLE_V1);
-        if (v1) resultat.courses = nettoyer(JSON.parse(v1));
-      } catch (e) { /* stockage indisponible ou illisible */ }
-      return resultat;
-    }
-
-    function sauver() {
-      try {
-        localStorage.setItem(CLE, JSON.stringify({ courses: etat.courses, reglages: etat.reglages }));
-        etat.stockageOk = true;
-      } catch (e) {
-        etat.stockageOk = false;
-      }
-      $('#bandeau').hidden = etat.stockageOk;
-    }
-
-    /* ---------- Utilitaires ---------- */
-    const $ = (sel, racine = document) => racine.querySelector(sel);
-
-    function h(tag, props, ...enfants) {
-      const el = document.createElement(tag);
-      for (const [k, v] of Object.entries(props || {})) {
-        if (v == null || v === false) continue;
-        if (k === 'class') el.className = v;
-        else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
-        else el.setAttribute(k, v === true ? '' : v);
-      }
-      for (const e of enfants.flat()) {
-        if (e == null || e === false) continue;
-        el.append(e.nodeType ? e : document.createTextNode(e));
-      }
-      return el;
-    }
-
-    const NS = 'http://www.w3.org/2000/svg';
-    function s(tag, attrs, ...enfants) {
-      const el = document.createElementNS(NS, tag);
-      for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
-      for (const e of enfants) if (e != null) el.append(e.nodeType ? e : document.createTextNode(e));
-      return el;
-    }
-
-    /* calculs:début */
-    const pad = (n) => String(n).padStart(2, '0');
-    const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const lireDate = (t) => { const [a, m, j] = t.split('-').map(Number); return new Date(a, m - 1, j); };
-    const ajouterJours = (d, n) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; };
-    const debutSemaine = (d) => ajouterJours(d, -((d.getDay() + 6) % 7));
-    const aujourdhui = () => new Date();
-
-    // Accepte « 4,2 » comme « 4.2 ». Renvoie null si ce n’est pas un nombre valide.
-    function lireNombre(texte) {
-      const t = texte.trim().replace(',', '.');
-      return /^\d+(\.\d+)?$/.test(t) ? Number(t) : null;
-    }
-    /* calculs:fin */
-
-    function libelleJour(texte) {
-      const d = lireDate(texte);
-      const delta = Math.round((lireDate(iso(aujourdhui())) - d) / 86400000);
-      if (delta === 0) return 'Aujourd’hui';
-      if (delta === 1) return 'Hier';
-      return fmtDateLongue.format(d);
-    }
-
-    /* calculs:début */
-    function totaux(liste, coutKm = 0) {
-      const n = liste.length;
-      const km = liste.reduce((a, c) => a + c.km, 0);
-      const euros = liste.reduce((a, c) => a + c.euros, 0);
-      const chrono = liste.filter((c) => c.minutes > 0);
-      const minutes = chrono.reduce((a, c) => a + c.minutes, 0);
-      const eurosChrono = chrono.reduce((a, c) => a + c.euros, 0);
-      return {
-        n, km, euros,
-        parKm: km > 0 ? euros / km : null,
-        parCourse: n ? euros / n : null,
-        parHeure: minutes > 0 ? eurosChrono / (minutes / 60) : null,
-        net: coutKm > 0 ? euros - km * coutKm : null,
+    <script>
+      const CLE = "courses-livraison-v2";
+      const CLE_V1 = "courses-livraison-v1";
+      const CLE_SAUVEGARDE = "courses-livraison-v2-sauvegarde";
+      const PAR_DEFAUT = {
+        plateformes: ["Uber Eats", "Deliveroo", "Just Eat"],
+        coutKm: 0,
+        objectifSemaine: 0,
+        seuilKm: 0,
+        theme: "auto",
       };
-    }
-    /* calculs:fin */
 
-    const calculer = (liste) => totaux(liste, etat.reglages.coutKm);
+      const fmtNb = new Intl.NumberFormat("fr-FR", {
+        maximumFractionDigits: 1,
+      });
+      const fmtEuros = new Intl.NumberFormat("fr-FR", {
+        style: "currency",
+        currency: "EUR",
+      });
+      const fmtEuros0 = new Intl.NumberFormat("fr-FR", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0,
+      });
+      const fmtDateLongue = new Intl.DateTimeFormat("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      });
+      const fmtDateCourte = new Intl.DateTimeFormat("fr-FR", {
+        day: "numeric",
+        month: "short",
+      });
+      const fmtMois = new Intl.DateTimeFormat("fr-FR", {
+        month: "long",
+        year: "numeric",
+      });
 
-    let minuteurToast;
-    function toast(message, duree = 2200) {
-      const t = $('#toast');
-      t.textContent = message;
-      t.classList.add('on');
-      clearTimeout(minuteurToast);
-      minuteurToast = setTimeout(() => t.classList.remove('on'), duree);
-    }
+      /* ---------- Données ---------- */
+      const etat = {
+        ...charger(),
+        stockageOk: stockageDisponible(),
+        vue: "courses",
+        mode: "semaine",
+        decalage: 0,
+        filtre: "",
+        grain: "jours",
+        metrique: "euros",
+        edition: null,
+      };
 
-    function seg(options, courant, onChoix) {
-      return h('div', { class: 'seg' }, options.map(([val, lib]) =>
-        h('button', { type: 'button', class: val === courant ? 'on' : '', 'aria-pressed': String(val === courant), onclick: () => onChoix(val) }, lib)));
-    }
-
-    const kpi = (etiquette, valeur) => h('div', { class: 'kpi' }, h('div', { class: 'etiquette' }, etiquette), h('div', { class: 'valeur' }, valeur));
-    const piste = (valeur, max) => h('div', { class: 'piste' }, h('i', { style: `width:${Math.max(0, Math.min(100, max > 0 ? (valeur / max) * 100 : 0))}%` }));
-
-    /* ---------- Période (onglet Courses) ---------- */
-    function plage() {
-      const auj = aujourdhui();
-      if (etat.mode === 'jour') {
-        const d = ajouterJours(auj, etat.decalage);
-        return { debut: iso(d), fin: iso(d), libelle: etat.decalage === 0 ? 'Aujourd’hui' : etat.decalage === -1 ? 'Hier' : fmtDateLongue.format(d) };
+      /* calculs:début */
+      // Vérifie qu’une date « AAAA-MM-JJ » existe vraiment (écarte 2026-02-30). Autonome : appelée avant l’initialisation des autres helpers.
+      function dateExiste(t) {
+        const [a, m, j] = t.split("-").map(Number);
+        const d = new Date(a, m - 1, j);
+        return (
+          d.getFullYear() === a && d.getMonth() === m - 1 && d.getDate() === j
+        );
       }
-      if (etat.mode === 'semaine') {
-        const d = ajouterJours(debutSemaine(auj), etat.decalage * 7);
-        const f = ajouterJours(d, 6);
-        return { debut: iso(d), fin: iso(f), libelle: etat.decalage === 0 ? 'Cette semaine' : `${fmtDateCourte.format(d)} – ${fmtDateCourte.format(f)}` };
+      function nettoyer(liste) {
+        if (!Array.isArray(liste)) return [];
+        return liste
+          .filter(
+            (c) =>
+              c &&
+              /^\d{4}-\d{2}-\d{2}$/.test(c.date) &&
+              dateExiste(c.date) &&
+              Number.isFinite(c.km) &&
+              c.km > 0 &&
+              Number.isFinite(c.euros) &&
+              c.euros >= 0,
+          )
+          .map((c) => ({
+            id: String(c.id ?? Date.now() + Math.random()),
+            date: c.date,
+            km: c.km,
+            euros: c.euros,
+            plateforme: typeof c.plateforme === "string" ? c.plateforme : "",
+            minutes:
+              Number.isFinite(c.minutes) && c.minutes > 0 ? c.minutes : 0,
+            note: typeof c.note === "string" ? c.note : "",
+          }));
       }
-      if (etat.mode === 'mois') {
-        const d = new Date(auj.getFullYear(), auj.getMonth() + etat.decalage, 1);
-        const f = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-        return { debut: iso(d), fin: iso(f), libelle: fmtMois.format(d) };
-      }
-      return { debut: '0000-00-00', fin: '9999-99-99', libelle: 'Toutes les courses' };
-    }
+      /* calculs:fin */
 
-    /* ---------- Vue : Courses ---------- */
-    function vueCourses() {
-      const p = plage();
-      const plateformes = [...new Set(etat.courses.map((c) => c.plateforme).filter(Boolean))].sort();
-      if (etat.filtre && !plateformes.includes(etat.filtre)) etat.filtre = '';
-
-      const liste = etat.courses
-        .filter((c) => c.date >= p.debut && c.date <= p.fin && (!etat.filtre || c.plateforme === etat.filtre))
-        .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id.localeCompare(a.id)));
-      const t = calculer(liste);
-
-      const racine = h('div', { class: 'stack' });
-
-      racine.append(h('div', { class: 'rangee' },
-        seg([['jour', 'Jour'], ['semaine', 'Semaine'], ['mois', 'Mois'], ['tout', 'Tout']], etat.mode, (m) => { etat.mode = m; etat.decalage = 0; rendu(); }),
-        etat.mode === 'tout' ? null : h('div', { class: 'periode' },
-          h('button', { class: 'rond', type: 'button', 'aria-label': 'Période précédente', onclick: () => { etat.decalage--; rendu(); } }, '‹'),
-          h('span', { class: 'libelle' }, p.libelle),
-          h('button', { class: 'rond', type: 'button', 'aria-label': 'Période suivante', disabled: etat.decalage >= 0, onclick: () => { etat.decalage++; rendu(); } }, '›'))));
-
-      const secondaires = [kpi('Km parcourus', `${fmtNb.format(t.km)} km`), kpi('€ / km', t.parKm === null ? '—' : fmtEuros.format(t.parKm)), kpi('Courses', String(t.n)), kpi('€ / course', t.parCourse === null ? '—' : fmtEuros.format(t.parCourse))];
-      if (t.parHeure !== null) secondaires.push(kpi('€ / heure', fmtEuros.format(t.parHeure)));
-      if (t.net !== null) secondaires.push(kpi('Net estimé', fmtEuros.format(t.net)));
-
-      const carte = h('div', { class: 'carte' },
-        h('div', { class: 'kpi-hero' }, h('div', { class: 'etiquette' }, 'Gains'), h('div', { class: 'gros' }, liste.length ? fmtEuros.format(t.euros) : '—')),
-        h('div', { class: 'kpis' }, secondaires));
-
-      if (etat.reglages.objectifSemaine > 0 && etat.mode === 'semaine' && etat.decalage === 0) {
-        carte.append(h('div', { style: 'margin-top:20px' },
-          h('div', { class: 'etiquette' }, `Objectif de la semaine : ${fmtEuros0.format(t.euros)} sur ${fmtEuros0.format(etat.reglages.objectifSemaine)}`),
-          piste(t.euros, etat.reglages.objectifSemaine)));
-      }
-      racine.append(carte);
-
-      const carteListe = h('div', { class: 'carte' });
-      if (plateformes.length > 1) {
-        carteListe.append(h('div', { class: 'puces' },
-          ['', ...plateformes].map((nom) => h('button', { type: 'button', class: `puce${nom === etat.filtre ? ' on' : ''}`, onclick: () => { etat.filtre = nom; rendu(); } }, nom || 'Toutes'))));
+      // Teste que le navigateur accepte l’écriture (stockage bloqué, mode privé, plein…).
+      function stockageDisponible() {
+        try {
+          localStorage.setItem("courses-livraison-test", "1");
+          localStorage.removeItem("courses-livraison-test");
+          return true;
+        } catch (e) {
+          return false;
+        }
       }
 
-      if (!liste.length) {
-        carteListe.append(h('div', { class: 'vide' },
-          h('p', {}, etat.courses.length ? 'Aucune course sur cette période.' : 'Aucune course pour l’instant.'),
-          h('button', { class: 'primaire', type: 'button', onclick: () => ouvrirCourse(null) }, 'Ajouter une course')));
-      } else {
-        let dernier = '';
-        for (const c of liste) {
-          if (c.date !== dernier) {
-            dernier = c.date;
-            const jour = calculer(liste.filter((x) => x.date === c.date));
-            carteListe.append(h('div', { class: 'jour' }, h('h3', {}, libelleJour(c.date)), h('span', { class: 'muted' }, h('strong', {}, fmtEuros.format(jour.euros)), ` · ${fmtNb.format(jour.km)} km`)));
+      // Garde une copie brute des données que l’appli ne sait pas relire, avant qu’une sauvegarde ne les écrase.
+      function mettreDeCote(brut) {
+        try {
+          localStorage.setItem(CLE_SAUVEGARDE, brut);
+        } catch (e) {
+          /* rien de plus à faire */
+        }
+      }
+
+      function charger() {
+        const resultat = {
+          courses: [],
+          reglages: { ...PAR_DEFAUT },
+          alerte: "",
+        };
+        try {
+          const brut = localStorage.getItem(CLE);
+          if (brut) {
+            try {
+              const d = JSON.parse(brut);
+              const lues = Array.isArray(d.courses) ? d.courses : [];
+              resultat.courses = nettoyer(lues);
+              resultat.reglages = { ...PAR_DEFAUT, ...d.reglages };
+              const ecartees = lues.length - resultat.courses.length;
+              if (ecartees > 0) {
+                mettreDeCote(brut);
+                resultat.alerte = `${ecartees} course(s) illisible(s) mise(s) de côté.`;
+              }
+            } catch (e) {
+              mettreDeCote(brut);
+              resultat.alerte =
+                "Données illisibles : une copie a été conservée.";
+            }
+            return resultat;
           }
-          const detail = [c.plateforme, c.minutes ? `${c.minutes} min` : '', c.note].filter(Boolean).join(' · ');
-          carteListe.append(h('div', { class: 'ligne-wrap' },
-            h('button', { class: 'ligne', type: 'button', onclick: () => ouvrirCourse(c) },
-              h('span', {}, h('span', { class: 'ligne-t' }, `${fmtNb.format(c.km)} km`), detail ? h('span', { class: 'muted' }, detail) : null),
-              h('span', {}, h('span', { class: 'ligne-t' }, fmtEuros.format(c.euros)), h('span', { class: 'muted' }, `${fmtEuros.format(c.euros / c.km)} / km`))),
-            h('button', { class: 'suppr-ligne', type: 'button', 'aria-label': 'Supprimer cette course', title: 'Supprimer', onclick: () => supprimerCourse(c.id) }, '×')));
+          const v1 = localStorage.getItem(CLE_V1);
+          if (v1) resultat.courses = nettoyer(JSON.parse(v1));
+        } catch (e) {
+          /* stockage indisponible ou illisible */
         }
+        return resultat;
       }
-      racine.append(carteListe);
-      return racine;
-    }
 
-    /* ---------- Graphiques ---------- */
-    function histogramme(donnees, format, L = 640) {
-      const H = 210, haut = 24, bas = 26;
-      const n = donnees.length;
-      const max = Math.max(...donnees.map((d) => d.valeur), 0) || 1;
-      const pas = L / n;
-      const lb = Math.min(38, pas * 0.58);
-      const svg = s('svg', { class: 'graph', viewBox: `0 0 ${L} ${H}`, role: 'img', 'aria-label': 'Histogramme' });
-      svg.append(s('line', { class: 'axe', x1: 0, x2: L, y1: H - bas, y2: H - bas }));
-      donnees.forEach((d, i) => {
-        const x = i * pas + (pas - lb) / 2;
-        const hauteur = (d.valeur / max) * (H - haut - bas);
-        if (d.valeur > 0) {
-          svg.append(s('rect', { class: `b${i === n - 1 ? ' now' : ''}`, x, y: H - bas - hauteur, width: lb, height: hauteur, rx: 4 }));
-          svg.append(s('text', { class: 'v', x: x + lb / 2, y: H - bas - hauteur - 7 }, format(d.valeur)));
+      function sauver() {
+        try {
+          localStorage.setItem(
+            CLE,
+            JSON.stringify({ courses: etat.courses, reglages: etat.reglages }),
+          );
+          etat.stockageOk = true;
+        } catch (e) {
+          etat.stockageOk = false;
         }
-        svg.append(s('text', { x: x + lb / 2, y: H - 8 }, d.etiquette));
-      });
-      return svg;
-    }
+        $("#bandeau").hidden = etat.stockageOk;
+      }
 
-    function donneesPeriode() {
-      const auj = aujourdhui();
-      const seaux = [];
-      if (etat.grain === 'jours') {
-        for (let i = 13; i >= 0; i--) { const d = ajouterJours(auj, -i); seaux.push({ etiquette: String(d.getDate()), test: (c) => c.date === iso(d) }); }
-      } else if (etat.grain === 'semaines') {
-        for (let i = 11; i >= 0; i--) {
-          const d = ajouterJours(debutSemaine(auj), -7 * i);
+      /* ---------- Utilitaires ---------- */
+      const $ = (sel, racine = document) => racine.querySelector(sel);
+
+      function h(tag, props, ...enfants) {
+        const el = document.createElement(tag);
+        for (const [k, v] of Object.entries(props || {})) {
+          if (v == null || v === false) continue;
+          if (k === "class") el.className = v;
+          else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+          else el.setAttribute(k, v === true ? "" : v);
+        }
+        for (const e of enfants.flat()) {
+          if (e == null || e === false) continue;
+          el.append(e.nodeType ? e : document.createTextNode(e));
+        }
+        return el;
+      }
+
+      const NS = "http://www.w3.org/2000/svg";
+      function s(tag, attrs, ...enfants) {
+        const el = document.createElementNS(NS, tag);
+        for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+        for (const e of enfants)
+          if (e != null) el.append(e.nodeType ? e : document.createTextNode(e));
+        return el;
+      }
+
+      /* calculs:début */
+      const pad = (n) => String(n).padStart(2, "0");
+      const iso = (d) =>
+        `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const lireDate = (t) => {
+        const [a, m, j] = t.split("-").map(Number);
+        return new Date(a, m - 1, j);
+      };
+      const ajouterJours = (d, n) => {
+        const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        x.setDate(x.getDate() + n);
+        return x;
+      };
+      const debutSemaine = (d) => ajouterJours(d, -((d.getDay() + 6) % 7));
+      const aujourdhui = () => new Date();
+
+      // Accepte « 4,2 » comme « 4.2 ». Renvoie null si ce n’est pas un nombre valide.
+      function lireNombre(texte) {
+        const t = texte.trim().replace(",", ".");
+        return /^\d+(\.\d+)?$/.test(t) ? Number(t) : null;
+      }
+      /* calculs:fin */
+
+      function libelleJour(texte) {
+        const d = lireDate(texte);
+        const delta = Math.round((lireDate(iso(aujourdhui())) - d) / 86400000);
+        if (delta === 0) return "Aujourd’hui";
+        if (delta === 1) return "Hier";
+        return fmtDateLongue.format(d);
+      }
+
+      /* calculs:début */
+      function totaux(liste, coutKm = 0) {
+        const n = liste.length;
+        const km = liste.reduce((a, c) => a + c.km, 0);
+        const euros = liste.reduce((a, c) => a + c.euros, 0);
+        const chrono = liste.filter((c) => c.minutes > 0);
+        const minutes = chrono.reduce((a, c) => a + c.minutes, 0);
+        const eurosChrono = chrono.reduce((a, c) => a + c.euros, 0);
+        return {
+          n,
+          km,
+          euros,
+          parKm: km > 0 ? euros / km : null,
+          parCourse: n ? euros / n : null,
+          parHeure: minutes > 0 ? eurosChrono / (minutes / 60) : null,
+          net: coutKm > 0 ? euros - km * coutKm : null,
+        };
+      }
+      /* calculs:fin */
+
+      const calculer = (liste) => totaux(liste, etat.reglages.coutKm);
+
+      let minuteurToast;
+      function toast(message, duree = 2200) {
+        const t = $("#toast");
+        t.textContent = message;
+        t.classList.add("on");
+        clearTimeout(minuteurToast);
+        minuteurToast = setTimeout(() => t.classList.remove("on"), duree);
+      }
+
+      function seg(options, courant, onChoix) {
+        return h(
+          "div",
+          { class: "seg" },
+          options.map(([val, lib]) =>
+            h(
+              "button",
+              {
+                type: "button",
+                class: val === courant ? "on" : "",
+                "aria-pressed": String(val === courant),
+                onclick: () => onChoix(val),
+              },
+              lib,
+            ),
+          ),
+        );
+      }
+
+      const kpi = (etiquette, valeur) =>
+        h(
+          "div",
+          { class: "kpi" },
+          h("div", { class: "etiquette" }, etiquette),
+          h("div", { class: "valeur" }, valeur),
+        );
+      const piste = (valeur, max) =>
+        h(
+          "div",
+          { class: "piste" },
+          h("i", {
+            style: `width:${Math.max(0, Math.min(100, max > 0 ? (valeur / max) * 100 : 0))}%`,
+          }),
+        );
+
+      /* ---------- Période (onglet Courses) ---------- */
+      function plage() {
+        const auj = aujourdhui();
+        if (etat.mode === "jour") {
+          const d = ajouterJours(auj, etat.decalage);
+          return {
+            debut: iso(d),
+            fin: iso(d),
+            libelle:
+              etat.decalage === 0
+                ? "Aujourd’hui"
+                : etat.decalage === -1
+                  ? "Hier"
+                  : fmtDateLongue.format(d),
+          };
+        }
+        if (etat.mode === "semaine") {
+          const d = ajouterJours(debutSemaine(auj), etat.decalage * 7);
           const f = ajouterJours(d, 6);
-          seaux.push({ etiquette: `${d.getDate()}/${d.getMonth() + 1}`, test: (c) => c.date >= iso(d) && c.date <= iso(f) });
+          return {
+            debut: iso(d),
+            fin: iso(f),
+            libelle:
+              etat.decalage === 0
+                ? "Cette semaine"
+                : `${fmtDateCourte.format(d)} – ${fmtDateCourte.format(f)}`,
+          };
         }
-      } else {
-        for (let i = 11; i >= 0; i--) {
-          const d = new Date(auj.getFullYear(), auj.getMonth() - i, 1);
-          const prefixe = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
-          seaux.push({ etiquette: d.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', ''), test: (c) => c.date.startsWith(prefixe) });
+        if (etat.mode === "mois") {
+          const d = new Date(
+            auj.getFullYear(),
+            auj.getMonth() + etat.decalage,
+            1,
+          );
+          const f = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+          return { debut: iso(d), fin: iso(f), libelle: fmtMois.format(d) };
         }
+        return {
+          debut: "0000-00-00",
+          fin: "9999-99-99",
+          libelle: "Toutes les courses",
+        };
       }
-      return seaux.map((x) => {
-        const t = calculer(etat.courses.filter(x.test));
-        return { etiquette: x.etiquette, valeur: etat.metrique === 'euros' ? t.euros : etat.metrique === 'km' ? t.km : t.parKm || 0 };
-      });
-    }
 
-    /* ---------- Vue : Statistiques ---------- */
-    function vueStats() {
-      const racine = h('div', { class: 'stack' });
-      if (!etat.courses.length) {
-        racine.append(h('div', { class: 'carte vide' }, h('p', {}, 'Les statistiques apparaîtront dès que tu auras ajouté des courses.')));
+      /* ---------- Vue : Courses ---------- */
+      function vueCourses() {
+        const p = plage();
+        const plateformes = [
+          ...new Set(etat.courses.map((c) => c.plateforme).filter(Boolean)),
+        ].sort();
+        if (etat.filtre && !plateformes.includes(etat.filtre)) etat.filtre = "";
+
+        const liste = etat.courses
+          .filter(
+            (c) =>
+              c.date >= p.debut &&
+              c.date <= p.fin &&
+              (!etat.filtre || c.plateforme === etat.filtre),
+          )
+          .sort((a, b) =>
+            a.date < b.date
+              ? 1
+              : a.date > b.date
+                ? -1
+                : b.id.localeCompare(a.id),
+          );
+        const t = calculer(liste);
+
+        const racine = h("div", { class: "stack" });
+
+        racine.append(
+          h(
+            "div",
+            { class: "rangee" },
+            seg(
+              [
+                ["jour", "Jour"],
+                ["semaine", "Semaine"],
+                ["mois", "Mois"],
+                ["tout", "Tout"],
+              ],
+              etat.mode,
+              (m) => {
+                etat.mode = m;
+                etat.decalage = 0;
+                rendu();
+              },
+            ),
+            etat.mode === "tout"
+              ? null
+              : h(
+                  "div",
+                  { class: "periode" },
+                  h(
+                    "button",
+                    {
+                      class: "rond",
+                      type: "button",
+                      "aria-label": "Période précédente",
+                      onclick: () => {
+                        etat.decalage--;
+                        rendu();
+                      },
+                    },
+                    "‹",
+                  ),
+                  h("span", { class: "libelle" }, p.libelle),
+                  h(
+                    "button",
+                    {
+                      class: "rond",
+                      type: "button",
+                      "aria-label": "Période suivante",
+                      disabled: etat.decalage >= 0,
+                      onclick: () => {
+                        etat.decalage++;
+                        rendu();
+                      },
+                    },
+                    "›",
+                  ),
+                ),
+          ),
+        );
+
+        const secondaires = [
+          kpi("Km parcourus", `${fmtNb.format(t.km)} km`),
+          kpi("€ / km", t.parKm === null ? "—" : fmtEuros.format(t.parKm)),
+          kpi("Courses", String(t.n)),
+          kpi(
+            "€ / course",
+            t.parCourse === null ? "—" : fmtEuros.format(t.parCourse),
+          ),
+        ];
+        if (t.parHeure !== null)
+          secondaires.push(kpi("€ / heure", fmtEuros.format(t.parHeure)));
+        if (t.net !== null)
+          secondaires.push(kpi("Net estimé", fmtEuros.format(t.net)));
+
+        const carte = h(
+          "div",
+          { class: "carte" },
+          h(
+            "div",
+            { class: "kpi-hero" },
+            h("div", { class: "etiquette" }, "Gains"),
+            h(
+              "div",
+              { class: "gros" },
+              liste.length ? fmtEuros.format(t.euros) : "—",
+            ),
+          ),
+          h("div", { class: "kpis" }, secondaires),
+        );
+
+        if (
+          etat.reglages.objectifSemaine > 0 &&
+          etat.mode === "semaine" &&
+          etat.decalage === 0
+        ) {
+          carte.append(
+            h(
+              "div",
+              { style: "margin-top:20px" },
+              h(
+                "div",
+                { class: "etiquette" },
+                `Objectif de la semaine : ${fmtEuros0.format(t.euros)} sur ${fmtEuros0.format(etat.reglages.objectifSemaine)}`,
+              ),
+              piste(t.euros, etat.reglages.objectifSemaine),
+            ),
+          );
+        }
+        racine.append(carte);
+
+        const carteListe = h("div", { class: "carte" });
+        if (plateformes.length > 1) {
+          carteListe.append(
+            h(
+              "div",
+              { class: "puces" },
+              ["", ...plateformes].map((nom) =>
+                h(
+                  "button",
+                  {
+                    type: "button",
+                    class: `puce${nom === etat.filtre ? " on" : ""}`,
+                    onclick: () => {
+                      etat.filtre = nom;
+                      rendu();
+                    },
+                  },
+                  nom || "Toutes",
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (!liste.length) {
+          carteListe.append(
+            h(
+              "div",
+              { class: "vide" },
+              h(
+                "p",
+                {},
+                etat.courses.length
+                  ? "Aucune course sur cette période."
+                  : "Aucune course pour l’instant.",
+              ),
+              h(
+                "button",
+                {
+                  class: "primaire",
+                  type: "button",
+                  onclick: () => ouvrirCourse(null),
+                },
+                "Ajouter une course",
+              ),
+            ),
+          );
+        } else {
+          let dernier = "";
+          for (const c of liste) {
+            if (c.date !== dernier) {
+              dernier = c.date;
+              const jour = calculer(liste.filter((x) => x.date === c.date));
+              carteListe.append(
+                h(
+                  "div",
+                  { class: "jour" },
+                  h("h3", {}, libelleJour(c.date)),
+                  h(
+                    "span",
+                    { class: "muted" },
+                    h("strong", {}, fmtEuros.format(jour.euros)),
+                    ` · ${fmtNb.format(jour.km)} km`,
+                  ),
+                ),
+              );
+            }
+            const detail = [
+              c.plateforme,
+              c.minutes ? `${c.minutes} min` : "",
+              c.note,
+            ]
+              .filter(Boolean)
+              .join(" · ");
+            carteListe.append(
+              h(
+                "div",
+                { class: "ligne-wrap" },
+                h(
+                  "button",
+                  {
+                    class: "ligne",
+                    type: "button",
+                    onclick: () => ouvrirCourse(c),
+                  },
+                  h(
+                    "span",
+                    {},
+                    h("span", { class: "ligne-t" }, `${fmtNb.format(c.km)} km`),
+                    detail ? h("span", { class: "muted" }, detail) : null,
+                  ),
+                  h(
+                    "span",
+                    {},
+                    h("span", { class: "ligne-t" }, fmtEuros.format(c.euros)),
+                    h(
+                      "span",
+                      { class: "muted" },
+                      `${fmtEuros.format(c.euros / c.km)} / km`,
+                    ),
+                  ),
+                ),
+                h(
+                  "button",
+                  {
+                    class: "suppr-ligne",
+                    type: "button",
+                    "aria-label": "Supprimer cette course",
+                    title: "Supprimer",
+                    onclick: () => supprimerCourse(c.id),
+                  },
+                  "×",
+                ),
+              ),
+            );
+          }
+        }
+        racine.append(carteListe);
         return racine;
       }
-      const tout = calculer(etat.courses);
-      const jours = new Set(etat.courses.map((c) => c.date));
 
-      const formatValeur = etat.metrique === 'perKm' ? (v) => fmtNb.format(Math.round(v * 100) / 100) : (v) => String(Math.round(v));
-      const unite = { euros: 'Gains (€)', km: 'Kilomètres', perKm: '€ par km' }[etat.metrique];
-      racine.append(h('div', { class: 'carte' },
-        h('h2', {}, unite),
-        h('div', { class: 'outils-graph' },
-          seg([['jours', '14 jours'], ['semaines', '12 semaines'], ['mois', '12 mois']], etat.grain, (g) => { etat.grain = g; rendu(); }),
-          seg([['euros', '€'], ['km', 'Km'], ['perKm', '€/km']], etat.metrique, (m) => { etat.metrique = m; rendu(); })),
-        histogramme(donneesPeriode(), formatValeur)));
+      /* ---------- Graphiques ---------- */
+      function histogramme(donnees, format, L = 640) {
+        const H = 210,
+          haut = 24,
+          bas = 26;
+        const n = donnees.length;
+        const max = Math.max(...donnees.map((d) => d.valeur), 0) || 1;
+        const pas = L / n;
+        const lb = Math.min(38, pas * 0.58);
+        const svg = s("svg", {
+          class: "graph",
+          viewBox: `0 0 ${L} ${H}`,
+          role: "img",
+          "aria-label": "Histogramme",
+        });
+        svg.append(
+          s("line", { class: "axe", x1: 0, x2: L, y1: H - bas, y2: H - bas }),
+        );
+        donnees.forEach((d, i) => {
+          const x = i * pas + (pas - lb) / 2;
+          const hauteur = (d.valeur / max) * (H - haut - bas);
+          if (d.valeur > 0) {
+            svg.append(
+              s("rect", {
+                class: `b${i === n - 1 ? " now" : ""}`,
+                x,
+                y: H - bas - hauteur,
+                width: lb,
+                height: hauteur,
+                rx: 4,
+              }),
+            );
+            svg.append(
+              s(
+                "text",
+                { class: "v", x: x + lb / 2, y: H - bas - hauteur - 7 },
+                format(d.valeur),
+              ),
+            );
+          }
+          svg.append(s("text", { x: x + lb / 2, y: H - 8 }, d.etiquette));
+        });
+        return svg;
+      }
 
-      const duo = h('div', { class: 'grille-2' });
-
-      // Jours de la semaine : gain moyen par jour travaillé
-      const parJour = Array.from({ length: 7 }, () => ({ euros: 0, dates: new Set() }));
-      for (const c of etat.courses) { const i = (lireDate(c.date).getDay() + 6) % 7; parJour[i].euros += c.euros; parJour[i].dates.add(c.date); }
-      duo.append(h('div', { class: 'carte' }, h('h2', {}, 'Gain moyen par jour de semaine'),
-        histogramme(parJour.map((x, i) => ({ etiquette: 'LMMJVSD'[i], valeur: x.dates.size ? x.euros / x.dates.size : 0 })), (v) => String(Math.round(v)), 340)));
-
-      // Plateformes
-      const groupes = {};
-      for (const c of etat.courses) (groupes[c.plateforme || 'Sans plateforme'] ||= []).push(c);
-      const lignes = Object.entries(groupes).map(([nom, l]) => [nom, calculer(l)]).sort((a, b) => b[1].euros - a[1].euros);
-      const maxEuros = lignes[0][1].euros;
-      duo.append(h('div', { class: 'carte' }, h('h2', {}, 'Par plateforme'),
-        lignes.map(([nom, t]) => h('div', { class: 'ligne-plat' },
-          h('span', { class: 'ligne-t' }, nom),
-          h('span', {}, `${fmtEuros.format(t.euros)} · ${t.parKm === null ? '—' : fmtEuros.format(t.parKm)} / km`),
-          piste(t.euros, maxEuros)))));
-      racine.append(duo);
-
-      // Records
-      const eligibles = etat.courses.filter((c) => c.km >= 1);
-      const meilleure = eligibles.sort((a, b) => b.euros / b.km - a.euros / a.km)[0];
-      const parDate = {};
-      for (const c of etat.courses) parDate[c.date] = (parDate[c.date] || 0) + c.euros;
-      const [dateRecord, eurosRecord] = Object.entries(parDate).sort((a, b) => b[1] - a[1])[0];
-      const longue = [...etat.courses].sort((a, b) => b.km - a.km)[0];
-      racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Repères'),
-        h('div', { class: 'records' },
-          h('div', {}, h('span', {}, 'Total'), h('strong', {}, `${fmtEuros.format(tout.euros)} · ${fmtNb.format(tout.km)} km · ${tout.n} courses`)),
-          h('div', {}, h('span', {}, 'Moyenne par jour travaillé'), h('strong', {}, `${fmtEuros.format(tout.euros / jours.size)} sur ${jours.size} jours`)),
-          meilleure ? h('div', {}, h('span', {}, 'Meilleure course (≥ 1 km)'), h('strong', {}, `${fmtEuros.format(meilleure.euros / meilleure.km)} / km`)) : null,
-          h('div', {}, h('span', {}, 'Meilleur jour'), h('strong', {}, `${fmtEuros.format(eurosRecord)} · ${fmtDateCourte.format(lireDate(dateRecord))}`)),
-          h('div', {}, h('span', {}, 'Course la plus longue'), h('strong', {}, `${fmtNb.format(longue.km)} km`)))));
-      return racine;
-    }
-
-    /* ---------- Vue : Outils ---------- */
-    function vueOutils() {
-      const r = etat.reglages;
-      const racine = h('div', { class: 'stack' });
-
-      // Calculateur : une course vaut-elle le coup ?
-      const champKm = h('input', { inputmode: 'decimal', placeholder: '3,5', autocomplete: 'off' });
-      const champEur = h('input', { inputmode: 'decimal', placeholder: '4,20', autocomplete: 'off' });
-      const sortie = h('div', { class: 'verdict' });
-      const maj = () => {
-        sortie.replaceChildren();
-        const k = lireNombre(champKm.value);
-        const e = lireNombre(champEur.value);
-        if (!k || e === null) { sortie.append(h('p', { class: 'muted' }, 'Saisis la distance et le montant proposés.')); return; }
-        const pk = e / k;
-        sortie.append(h('div', { class: 'gros' }, `${fmtEuros.format(pk)} / km`));
-        if (r.seuilKm > 0) sortie.append(h('p', { class: pk >= r.seuilKm ? 'ok' : 'ko' }, pk >= r.seuilKm ? `Au-dessus de ton seuil (${fmtEuros.format(r.seuilKm)} / km)` : `Sous ton seuil (${fmtEuros.format(r.seuilKm)} / km)`));
-        const moyenne = calculer(etat.courses).parKm;
-        if (moyenne !== null) {
-          const ecart = pk - moyenne;
-          sortie.append(h('p', { class: 'muted' }, `${ecart >= 0 ? '+' : '−'}${fmtEuros.format(Math.abs(ecart))} / km par rapport à ta moyenne (${fmtEuros.format(moyenne)})`));
+      function donneesPeriode() {
+        const auj = aujourdhui();
+        const seaux = [];
+        if (etat.grain === "jours") {
+          for (let i = 13; i >= 0; i--) {
+            const d = ajouterJours(auj, -i);
+            seaux.push({
+              etiquette: String(d.getDate()),
+              test: (c) => c.date === iso(d),
+            });
+          }
+        } else if (etat.grain === "semaines") {
+          for (let i = 11; i >= 0; i--) {
+            const d = ajouterJours(debutSemaine(auj), -7 * i);
+            const f = ajouterJours(d, 6);
+            seaux.push({
+              etiquette: `${d.getDate()}/${d.getMonth() + 1}`,
+              test: (c) => c.date >= iso(d) && c.date <= iso(f),
+            });
+          }
+        } else {
+          for (let i = 11; i >= 0; i--) {
+            const d = new Date(auj.getFullYear(), auj.getMonth() - i, 1);
+            const prefixe = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+            seaux.push({
+              etiquette: d
+                .toLocaleDateString("fr-FR", { month: "short" })
+                .replace(".", ""),
+              test: (c) => c.date.startsWith(prefixe),
+            });
+          }
         }
-        if (r.coutKm > 0) sortie.append(h('p', { class: 'muted' }, `Net estimé après frais : ${fmtEuros.format(e - k * r.coutKm)}`));
-      };
-      champKm.addEventListener('input', maj);
-      champEur.addEventListener('input', maj);
-      maj();
-      racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Cette course vaut-elle le coup ?'),
-        h('div', { class: 'duo' }, h('label', {}, 'Distance (km)', champKm), h('label', {}, 'Montant (€)', champEur)), sortie));
-
-      // Objectif hebdomadaire
-      const auj = aujourdhui();
-      const debut = debutSemaine(auj);
-      const semaine = calculer(etat.courses.filter((c) => c.date >= iso(debut) && c.date <= iso(ajouterJours(debut, 6))));
-      const carteObjectif = h('div', { class: 'carte' }, h('h2', {}, 'Objectif de la semaine'));
-      if (r.objectifSemaine > 0) {
-        const reste = Math.max(0, r.objectifSemaine - semaine.euros);
-        const joursRestants = 7 - ((auj.getDay() + 6) % 7);
-        carteObjectif.append(
-          h('div', { class: 'gros' }, `${fmtEuros0.format(semaine.euros)}`),
-          h('div', { class: 'etiquette' }, `sur ${fmtEuros0.format(r.objectifSemaine)}`),
-          piste(semaine.euros, r.objectifSemaine),
-          h('p', { class: 'muted', style: 'margin-top:12px' }, reste === 0 ? 'Objectif atteint.' : `Il reste ${fmtEuros0.format(reste)}, soit environ ${fmtEuros0.format(reste / joursRestants)} par jour sur les ${joursRestants} jours restants.`));
-      } else {
-        carteObjectif.append(h('p', { class: 'muted' }, 'Définis un objectif hebdomadaire dans les réglages pour suivre ta progression.'),
-          h('button', { class: 'ghost', type: 'button', style: 'margin-top:14px', onclick: () => allerA('reglages') }, 'Ouvrir les réglages'));
+        return seaux.map((x) => {
+          const t = calculer(etat.courses.filter(x.test));
+          return {
+            etiquette: x.etiquette,
+            valeur:
+              etat.metrique === "euros"
+                ? t.euros
+                : etat.metrique === "km"
+                  ? t.km
+                  : t.parKm || 0,
+          };
+        });
       }
-      racine.append(carteObjectif);
 
-      // Frais
-      if (!(r.coutKm > 0)) {
-        racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Frais kilométriques'),
-          h('p', { class: 'muted' }, 'Renseigne ton coût au kilomètre (carburant, entretien, usure) pour voir ton gain net dans les courses et les statistiques.'),
-          h('button', { class: 'ghost', type: 'button', style: 'margin-top:14px', onclick: () => allerA('reglages') }, 'Ouvrir les réglages')));
+      /* ---------- Vue : Statistiques ---------- */
+      function vueStats() {
+        const racine = h("div", { class: "stack" });
+        if (!etat.courses.length) {
+          racine.append(
+            h(
+              "div",
+              { class: "carte vide" },
+              h(
+                "p",
+                {},
+                "Les statistiques apparaîtront dès que tu auras ajouté des courses.",
+              ),
+            ),
+          );
+          return racine;
+        }
+        const tout = calculer(etat.courses);
+        const jours = new Set(etat.courses.map((c) => c.date));
+
+        const formatValeur =
+          etat.metrique === "perKm"
+            ? (v) => fmtNb.format(Math.round(v * 100) / 100)
+            : (v) => String(Math.round(v));
+        const unite = {
+          euros: "Gains (€)",
+          km: "Kilomètres",
+          perKm: "€ par km",
+        }[etat.metrique];
+        racine.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, unite),
+            h(
+              "div",
+              { class: "outils-graph" },
+              seg(
+                [
+                  ["jours", "14 jours"],
+                  ["semaines", "12 semaines"],
+                  ["mois", "12 mois"],
+                ],
+                etat.grain,
+                (g) => {
+                  etat.grain = g;
+                  rendu();
+                },
+              ),
+              seg(
+                [
+                  ["euros", "€"],
+                  ["km", "Km"],
+                  ["perKm", "€/km"],
+                ],
+                etat.metrique,
+                (m) => {
+                  etat.metrique = m;
+                  rendu();
+                },
+              ),
+            ),
+            histogramme(donneesPeriode(), formatValeur),
+          ),
+        );
+
+        const duo = h("div", { class: "grille-2" });
+
+        // Jours de la semaine : gain moyen par jour travaillé
+        const parJour = Array.from({ length: 7 }, () => ({
+          euros: 0,
+          dates: new Set(),
+        }));
+        for (const c of etat.courses) {
+          const i = (lireDate(c.date).getDay() + 6) % 7;
+          parJour[i].euros += c.euros;
+          parJour[i].dates.add(c.date);
+        }
+        duo.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, "Gain moyen par jour de semaine"),
+            histogramme(
+              parJour.map((x, i) => ({
+                etiquette: "LMMJVSD"[i],
+                valeur: x.dates.size ? x.euros / x.dates.size : 0,
+              })),
+              (v) => String(Math.round(v)),
+              340,
+            ),
+          ),
+        );
+
+        // Plateformes
+        const groupes = {};
+        for (const c of etat.courses)
+          (groupes[c.plateforme || "Sans plateforme"] ||= []).push(c);
+        const lignes = Object.entries(groupes)
+          .map(([nom, l]) => [nom, calculer(l)])
+          .sort((a, b) => b[1].euros - a[1].euros);
+        const maxEuros = lignes[0][1].euros;
+        duo.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, "Par plateforme"),
+            lignes.map(([nom, t]) =>
+              h(
+                "div",
+                { class: "ligne-plat" },
+                h("span", { class: "ligne-t" }, nom),
+                h(
+                  "span",
+                  {},
+                  `${fmtEuros.format(t.euros)} · ${t.parKm === null ? "—" : fmtEuros.format(t.parKm)} / km`,
+                ),
+                piste(t.euros, maxEuros),
+              ),
+            ),
+          ),
+        );
+        racine.append(duo);
+
+        // Records
+        const eligibles = etat.courses.filter((c) => c.km >= 1);
+        const meilleure = eligibles.sort(
+          (a, b) => b.euros / b.km - a.euros / a.km,
+        )[0];
+        const parDate = {};
+        for (const c of etat.courses)
+          parDate[c.date] = (parDate[c.date] || 0) + c.euros;
+        const [dateRecord, eurosRecord] = Object.entries(parDate).sort(
+          (a, b) => b[1] - a[1],
+        )[0];
+        const longue = [...etat.courses].sort((a, b) => b.km - a.km)[0];
+        racine.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, "Repères"),
+            h(
+              "div",
+              { class: "records" },
+              h(
+                "div",
+                {},
+                h("span", {}, "Total"),
+                h(
+                  "strong",
+                  {},
+                  `${fmtEuros.format(tout.euros)} · ${fmtNb.format(tout.km)} km · ${tout.n} courses`,
+                ),
+              ),
+              h(
+                "div",
+                {},
+                h("span", {}, "Moyenne par jour travaillé"),
+                h(
+                  "strong",
+                  {},
+                  `${fmtEuros.format(tout.euros / jours.size)} sur ${jours.size} jours`,
+                ),
+              ),
+              meilleure
+                ? h(
+                    "div",
+                    {},
+                    h("span", {}, "Meilleure course (≥ 1 km)"),
+                    h(
+                      "strong",
+                      {},
+                      `${fmtEuros.format(meilleure.euros / meilleure.km)} / km`,
+                    ),
+                  )
+                : null,
+              h(
+                "div",
+                {},
+                h("span", {}, "Meilleur jour"),
+                h(
+                  "strong",
+                  {},
+                  `${fmtEuros.format(eurosRecord)} · ${fmtDateCourte.format(lireDate(dateRecord))}`,
+                ),
+              ),
+              h(
+                "div",
+                {},
+                h("span", {}, "Course la plus longue"),
+                h("strong", {}, `${fmtNb.format(longue.km)} km`),
+              ),
+            ),
+          ),
+        );
+        return racine;
       }
-      return racine;
-    }
 
-    /* ---------- Vue : Réglages ---------- */
-    function champNombre(cle, valeur, placeholder) {
-      const el = h('input', { class: 'champ', inputmode: 'decimal', placeholder, value: valeur > 0 ? String(valeur).replace('.', ',') : '', autocomplete: 'off' });
-      el.addEventListener('change', () => {
-        const t = el.value.trim();
-        const n = t === '' ? 0 : lireNombre(t);
-        if (n === null) { toast('Valeur invalide.'); rendu(); return; }
-        etat.reglages[cle] = n;
+      /* ---------- Vue : Outils ---------- */
+      function vueOutils() {
+        const r = etat.reglages;
+        const racine = h("div", { class: "stack" });
+
+        // Calculateur : une course vaut-elle le coup ?
+        const champKm = h("input", {
+          inputmode: "decimal",
+          placeholder: "3,5",
+          autocomplete: "off",
+        });
+        const champEur = h("input", {
+          inputmode: "decimal",
+          placeholder: "4,20",
+          autocomplete: "off",
+        });
+        const sortie = h("div", { class: "verdict" });
+        const maj = () => {
+          sortie.replaceChildren();
+          const k = lireNombre(champKm.value);
+          const e = lireNombre(champEur.value);
+          if (!k || e === null) {
+            sortie.append(
+              h(
+                "p",
+                { class: "muted" },
+                "Saisis la distance et le montant proposés.",
+              ),
+            );
+            return;
+          }
+          const pk = e / k;
+          sortie.append(
+            h("div", { class: "gros" }, `${fmtEuros.format(pk)} / km`),
+          );
+          if (r.seuilKm > 0)
+            sortie.append(
+              h(
+                "p",
+                { class: pk >= r.seuilKm ? "ok" : "ko" },
+                pk >= r.seuilKm
+                  ? `Au-dessus de ton seuil (${fmtEuros.format(r.seuilKm)} / km)`
+                  : `Sous ton seuil (${fmtEuros.format(r.seuilKm)} / km)`,
+              ),
+            );
+          const moyenne = calculer(etat.courses).parKm;
+          if (moyenne !== null) {
+            const ecart = pk - moyenne;
+            sortie.append(
+              h(
+                "p",
+                { class: "muted" },
+                `${ecart >= 0 ? "+" : "−"}${fmtEuros.format(Math.abs(ecart))} / km par rapport à ta moyenne (${fmtEuros.format(moyenne)})`,
+              ),
+            );
+          }
+          if (r.coutKm > 0)
+            sortie.append(
+              h(
+                "p",
+                { class: "muted" },
+                `Net estimé après frais : ${fmtEuros.format(e - k * r.coutKm)}`,
+              ),
+            );
+        };
+        champKm.addEventListener("input", maj);
+        champEur.addEventListener("input", maj);
+        maj();
+        racine.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, "Cette course vaut-elle le coup ?"),
+            h(
+              "div",
+              { class: "duo" },
+              h("label", {}, "Distance (km)", champKm),
+              h("label", {}, "Montant (€)", champEur),
+            ),
+            sortie,
+          ),
+        );
+
+        // Objectif hebdomadaire
+        const auj = aujourdhui();
+        const debut = debutSemaine(auj);
+        const semaine = calculer(
+          etat.courses.filter(
+            (c) =>
+              c.date >= iso(debut) && c.date <= iso(ajouterJours(debut, 6)),
+          ),
+        );
+        const carteObjectif = h(
+          "div",
+          { class: "carte" },
+          h("h2", {}, "Objectif de la semaine"),
+        );
+        if (r.objectifSemaine > 0) {
+          const reste = Math.max(0, r.objectifSemaine - semaine.euros);
+          const joursRestants = 7 - ((auj.getDay() + 6) % 7);
+          carteObjectif.append(
+            h("div", { class: "gros" }, `${fmtEuros0.format(semaine.euros)}`),
+            h(
+              "div",
+              { class: "etiquette" },
+              `sur ${fmtEuros0.format(r.objectifSemaine)}`,
+            ),
+            piste(semaine.euros, r.objectifSemaine),
+            h(
+              "p",
+              { class: "muted", style: "margin-top:12px" },
+              reste === 0
+                ? "Objectif atteint."
+                : `Il reste ${fmtEuros0.format(reste)}, soit environ ${fmtEuros0.format(reste / joursRestants)} par jour sur les ${joursRestants} jours restants.`,
+            ),
+          );
+        } else {
+          carteObjectif.append(
+            h(
+              "p",
+              { class: "muted" },
+              "Définis un objectif hebdomadaire dans les réglages pour suivre ta progression.",
+            ),
+            h(
+              "button",
+              {
+                class: "ghost",
+                type: "button",
+                style: "margin-top:14px",
+                onclick: () => allerA("reglages"),
+              },
+              "Ouvrir les réglages",
+            ),
+          );
+        }
+        racine.append(carteObjectif);
+
+        // Frais
+        if (!(r.coutKm > 0)) {
+          racine.append(
+            h(
+              "div",
+              { class: "carte" },
+              h("h2", {}, "Frais kilométriques"),
+              h(
+                "p",
+                { class: "muted" },
+                "Renseigne ton coût au kilomètre (carburant, entretien, usure) pour voir ton gain net dans les courses et les statistiques.",
+              ),
+              h(
+                "button",
+                {
+                  class: "ghost",
+                  type: "button",
+                  style: "margin-top:14px",
+                  onclick: () => allerA("reglages"),
+                },
+                "Ouvrir les réglages",
+              ),
+            ),
+          );
+        }
+        return racine;
+      }
+
+      /* ---------- Vue : Réglages ---------- */
+      function champNombre(cle, valeur, placeholder) {
+        const el = h("input", {
+          class: "champ",
+          inputmode: "decimal",
+          placeholder,
+          value: valeur > 0 ? String(valeur).replace(".", ",") : "",
+          autocomplete: "off",
+        });
+        el.addEventListener("change", () => {
+          const t = el.value.trim();
+          const n = t === "" ? 0 : lireNombre(t);
+          if (n === null) {
+            toast("Valeur invalide.");
+            rendu();
+            return;
+          }
+          etat.reglages[cle] = n;
+          sauver();
+          rendu();
+        });
+        return el;
+      }
+
+      function vueReglages() {
+        const r = etat.reglages;
+        const racine = h("div", { class: "stack" });
+
+        racine.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, "Apparence"),
+            seg(
+              [
+                ["auto", "Auto"],
+                ["light", "Clair"],
+                ["dark", "Sombre"],
+              ],
+              r.theme,
+              (t) => {
+                r.theme = t;
+                appliquerTheme();
+                sauver();
+                rendu();
+              },
+            ),
+          ),
+        );
+
+        racine.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, "Objectifs et frais"),
+            h(
+              "div",
+              { class: "reglage" },
+              h(
+                "div",
+                {},
+                "Coût au km",
+                h("small", {}, "Carburant, entretien, usure (€ / km)"),
+              ),
+              champNombre("coutKm", r.coutKm, "0,12"),
+            ),
+            h(
+              "div",
+              { class: "reglage" },
+              h(
+                "div",
+                {},
+                "Objectif hebdomadaire",
+                h("small", {}, "Gains visés par semaine (€)"),
+              ),
+              champNombre("objectifSemaine", r.objectifSemaine, "500"),
+            ),
+            h(
+              "div",
+              { class: "reglage" },
+              h(
+                "div",
+                {},
+                "Seuil minimum",
+                h(
+                  "small",
+                  {},
+                  "€ / km en dessous duquel une course ne t’intéresse pas",
+                ),
+              ),
+              champNombre("seuilKm", r.seuilKm, "1,00"),
+            ),
+          ),
+        );
+
+        const nouveau = h("input", {
+          placeholder: "Nouvelle plateforme",
+          maxlength: "24",
+          autocomplete: "off",
+        });
+        const ajouter = () => {
+          const nom = nouveau.value.trim();
+          if (!nom) return;
+          if (
+            r.plateformes.some((p) => p.toLowerCase() === nom.toLowerCase())
+          ) {
+            toast("Cette plateforme existe déjà.");
+            return;
+          }
+          r.plateformes.push(nom);
+          sauver();
+          rendu();
+        };
+        nouveau.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            ajouter();
+          }
+        });
+        racine.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, "Plateformes"),
+            h(
+              "div",
+              { class: "tags" },
+              r.plateformes.map((nom) =>
+                h(
+                  "span",
+                  { class: "tag" },
+                  nom,
+                  h(
+                    "button",
+                    {
+                      type: "button",
+                      "aria-label": `Retirer ${nom}`,
+                      onclick: () => {
+                        r.plateformes = r.plateformes.filter((p) => p !== nom);
+                        sauver();
+                        rendu();
+                      },
+                    },
+                    "×",
+                  ),
+                ),
+              ),
+            ),
+            h(
+              "div",
+              { class: "ajout" },
+              nouveau,
+              h(
+                "button",
+                { class: "ghost", type: "button", onclick: ajouter },
+                "Ajouter",
+              ),
+            ),
+          ),
+        );
+
+        racine.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, "Données"),
+            h(
+              "p",
+              { class: "muted", style: "margin-bottom:14px" },
+              `${etat.courses.length} course${etat.courses.length > 1 ? "s" : ""} enregistrée${etat.courses.length > 1 ? "s" : ""} sur cet appareil. Pense à exporter une sauvegarde de temps en temps.`,
+            ),
+            h(
+              "div",
+              { class: "actions-groupe" },
+              h(
+                "button",
+                { class: "ghost", type: "button", onclick: exporterJson },
+                "Exporter (JSON)",
+              ),
+              h(
+                "button",
+                { class: "ghost", type: "button", onclick: exporterCsv },
+                "Exporter (CSV)",
+              ),
+              h(
+                "button",
+                {
+                  class: "ghost",
+                  type: "button",
+                  onclick: () => $("#fichier").click(),
+                },
+                "Importer",
+              ),
+              h(
+                "button",
+                { class: "ghost danger", type: "button", onclick: toutEffacer },
+                "Tout effacer",
+              ),
+            ),
+          ),
+        );
+        return racine;
+      }
+
+      /* ---------- Export / import ---------- */
+      function telecharger(nom, contenu, type) {
+        const url = URL.createObjectURL(new Blob([contenu], { type }));
+        const a = h("a", { href: url, download: nom });
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function exporterJson() {
+        telecharger(
+          `courses-${iso(aujourdhui())}.json`,
+          JSON.stringify(
+            { courses: etat.courses, reglages: etat.reglages },
+            null,
+            2,
+          ),
+          "application/json",
+        );
+      }
+
+      function exporterCsv() {
+        const nb = (n) => String(n).replace(".", ",");
+        const txt = (t) => `"${String(t).replace(/"/g, '""')}"`;
+        const lignes = ["date;km;euros;plateforme;minutes;note"];
+        for (const c of [...etat.courses].sort((a, b) =>
+          a.date < b.date ? -1 : 1,
+        ))
+          lignes.push(
+            [
+              c.date,
+              nb(c.km),
+              nb(c.euros),
+              txt(c.plateforme),
+              c.minutes || "",
+              txt(c.note),
+            ].join(";"),
+          );
+        telecharger(
+          `courses-${iso(aujourdhui())}.csv`,
+          "﻿" + lignes.join("\n"),
+          "text/csv;charset=utf-8",
+        );
+      }
+
+      $("#fichier").addEventListener("change", async (e) => {
+        const fichier = e.target.files[0];
+        e.target.value = "";
+        if (!fichier) return;
+        try {
+          const d = JSON.parse(await fichier.text());
+          const entrantes = nettoyer(Array.isArray(d) ? d : d.courses);
+          if (!entrantes.length) {
+            toast("Aucune course valide dans ce fichier.");
+            return;
+          }
+          if (
+            !window.confirm(
+              `Importer ${entrantes.length} course(s) ? Elles seront fusionnées avec les courses existantes.`,
+            )
+          )
+            return;
+          const connus = new Set(etat.courses.map((c) => c.id));
+          const nouvelles = entrantes.filter((c) => !connus.has(c.id));
+          etat.courses.push(...nouvelles);
+          sauver();
+          rendu();
+          toast(`${nouvelles.length} course(s) ajoutée(s)`);
+        } catch (err) {
+          toast("Fichier illisible.");
+        }
+      });
+
+      function toutEffacer() {
+        if (
+          !window.confirm("Effacer toutes les courses et tous les réglages ?")
+        )
+          return;
+        if (
+          !window.confirm(
+            "Dernière confirmation : cette action est définitive.",
+          )
+        )
+          return;
+        etat.courses = [];
+        etat.reglages = {
+          ...PAR_DEFAUT,
+          plateformes: [...PAR_DEFAUT.plateformes],
+        };
         sauver();
+        appliquerTheme();
+        rendu();
+        toast("Données effacées");
+      }
+
+      /* ---------- Fenêtre de saisie ---------- */
+      const dlg = $("#dlg");
+      const champs = {
+        date: $("#f-date"),
+        km: $("#f-km"),
+        eur: $("#f-eur"),
+        plat: $("#f-plat"),
+        min: $("#f-min"),
+        note: $("#f-note"),
+      };
+
+      function ouvrirCourse(c) {
+        etat.edition = c ? c.id : null;
+        $("#dlg-titre").textContent = c
+          ? "Modifier la course"
+          : "Nouvelle course";
+        $("#f-suppr").hidden = !c;
+        $("#f-err").textContent = "";
+        champs.date.value = c
+          ? c.date
+          : etat.vue === "courses" && etat.mode === "jour" && etat.decalage < 0
+            ? plage().debut
+            : iso(aujourdhui());
+        champs.km.value = c ? String(c.km).replace(".", ",") : "";
+        champs.eur.value = c ? String(c.euros).replace(".", ",") : "";
+        champs.min.value = c && c.minutes ? String(c.minutes) : "";
+        champs.note.value = c ? c.note : "";
+        const options = ["", ...etat.reglages.plateformes];
+        if (c && c.plateforme && !options.includes(c.plateforme))
+          options.push(c.plateforme);
+        champs.plat.replaceChildren(
+          ...options.map((o) => h("option", { value: o }, o || "Aucune")),
+        );
+        champs.plat.value = c ? c.plateforme : "";
+        majApercu();
+        if (typeof dlg.showModal === "function") dlg.showModal();
+        else dlg.setAttribute("open", "");
+        if (!c) champs.km.focus();
+      }
+
+      function fermerDialogue() {
+        if (typeof dlg.close === "function") dlg.close();
+        else dlg.removeAttribute("open");
+      }
+
+      function majApercu() {
+        const k = lireNombre(champs.km.value);
+        const e = lireNombre(champs.eur.value);
+        const m = lireNombre(champs.min.value);
+        const parties = [];
+        if (k && e !== null) {
+          parties.push(`${fmtEuros.format(e / k)} / km`);
+          if (etat.reglages.coutKm > 0)
+            parties.push(
+              `net ${fmtEuros.format(e - k * etat.reglages.coutKm)}`,
+            );
+          if (m) parties.push(`${fmtEuros.format(e / (m / 60))} / h`);
+        }
+        $("#f-apercu").textContent = parties.join(" · ");
+      }
+      for (const el of [champs.km, champs.eur, champs.min])
+        el.addEventListener("input", majApercu);
+
+      $("#f").addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        const err = $("#f-err");
+        const km = lireNombre(champs.km.value);
+        const euros = lireNombre(champs.eur.value);
+        const brutMin = champs.min.value.trim();
+        const minutes = brutMin === "" ? 0 : lireNombre(brutMin);
+        if (!champs.date.value) {
+          err.textContent = "Indique la date.";
+          return;
+        }
+        if (km === null || km <= 0) {
+          err.textContent = "La distance doit être supérieure à 0.";
+          champs.km.focus();
+          return;
+        }
+        if (euros === null) {
+          err.textContent = "Le montant doit être un nombre positif.";
+          champs.eur.focus();
+          return;
+        }
+        if (minutes === null) {
+          err.textContent = "La durée doit être un nombre de minutes.";
+          champs.min.focus();
+          return;
+        }
+
+        const donnees = {
+          date: champs.date.value,
+          km,
+          euros,
+          plateforme: champs.plat.value,
+          minutes: Math.round(minutes),
+          note: champs.note.value.trim(),
+        };
+        const existante =
+          etat.edition && etat.courses.find((c) => c.id === etat.edition);
+        if (existante) {
+          Object.assign(existante, donnees);
+        } else {
+          etat.courses.push({
+            id: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
+            ...donnees,
+          });
+        }
+        sauver();
+        fermerDialogue();
+        rendu();
+        toast(existante ? "Course modifiée" : "Course ajoutée");
+      });
+
+      $("#f-annuler").addEventListener("click", fermerDialogue);
+      function supprimerCourse(id) {
+        if (!window.confirm("Supprimer cette course ?")) return false;
+        etat.courses = etat.courses.filter((c) => c.id !== id);
+        sauver();
+        rendu();
+        toast("Course supprimée");
+        return true;
+      }
+      $("#f-suppr").addEventListener("click", () => {
+        if (!supprimerCourse(etat.edition)) return;
+        fermerDialogue();
+      });
+      dlg.addEventListener("click", (e) => {
+        if (e.target === dlg) fermerDialogue();
+      });
+      $("#btn-ajout").addEventListener("click", () => ouvrirCourse(null));
+
+      /* ---------- Navigation et rendu ---------- */
+      const vues = {
+        courses: vueCourses,
+        stats: vueStats,
+        outils: vueOutils,
+        reglages: vueReglages,
+      };
+
+      function allerA(vue) {
+        etat.vue = vue;
+        rendu();
+        window.scrollTo(0, 0);
+      }
+
+      function appliquerTheme() {
+        const t = etat.reglages.theme;
+        document.documentElement.dataset.theme =
+          t === "light" || t === "dark" ? t : "";
+        majBoutonTheme();
+      }
+
+      // Apparence réellement affichée (en mode « Auto », on suit le système).
+      function themeEffectif() {
+        const t = etat.reglages.theme;
+        if (t === "light" || t === "dark") return t;
+        return window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+      }
+
+      function majBoutonTheme() {
+        const b = $("#btn-theme");
+        if (!b) return;
+        const sombre = themeEffectif() === "dark";
+        const libelle = sombre
+          ? "Passer en mode clair"
+          : "Passer en mode sombre";
+        b.textContent = sombre ? "☀" : "☾";
+        b.setAttribute("aria-label", libelle);
+        b.title = libelle;
+      }
+
+      $("#btn-theme").addEventListener("click", () => {
+        etat.reglages.theme = themeEffectif() === "dark" ? "light" : "dark";
+        sauver();
+        appliquerTheme();
         rendu();
       });
-      return el;
-    }
 
-    function vueReglages() {
-      const r = etat.reglages;
-      const racine = h('div', { class: 'stack' });
-
-      racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Apparence'),
-        seg([['auto', 'Auto'], ['light', 'Clair'], ['dark', 'Sombre']], r.theme, (t) => { r.theme = t; appliquerTheme(); sauver(); rendu(); })));
-
-      racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Objectifs et frais'),
-        h('div', { class: 'reglage' }, h('div', {}, 'Coût au km', h('small', {}, 'Carburant, entretien, usure (€ / km)')), champNombre('coutKm', r.coutKm, '0,12')),
-        h('div', { class: 'reglage' }, h('div', {}, 'Objectif hebdomadaire', h('small', {}, 'Gains visés par semaine (€)')), champNombre('objectifSemaine', r.objectifSemaine, '500')),
-        h('div', { class: 'reglage' }, h('div', {}, 'Seuil minimum', h('small', {}, '€ / km en dessous duquel une course ne t’intéresse pas')), champNombre('seuilKm', r.seuilKm, '1,00'))));
-
-      const nouveau = h('input', { placeholder: 'Nouvelle plateforme', maxlength: '24', autocomplete: 'off' });
-      const ajouter = () => {
-        const nom = nouveau.value.trim();
-        if (!nom) return;
-        if (r.plateformes.some((p) => p.toLowerCase() === nom.toLowerCase())) { toast('Cette plateforme existe déjà.'); return; }
-        r.plateformes.push(nom);
-        sauver();
-        rendu();
-      };
-      nouveau.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); ajouter(); } });
-      racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Plateformes'),
-        h('div', { class: 'tags' }, r.plateformes.map((nom) => h('span', { class: 'tag' }, nom,
-          h('button', { type: 'button', 'aria-label': `Retirer ${nom}`, onclick: () => { r.plateformes = r.plateformes.filter((p) => p !== nom); sauver(); rendu(); } }, '×')))),
-        h('div', { class: 'ajout' }, nouveau, h('button', { class: 'ghost', type: 'button', onclick: ajouter }, 'Ajouter'))));
-
-      racine.append(h('div', { class: 'carte' }, h('h2', {}, 'Données'),
-        h('p', { class: 'muted', style: 'margin-bottom:14px' }, `${etat.courses.length} course${etat.courses.length > 1 ? 's' : ''} enregistrée${etat.courses.length > 1 ? 's' : ''} sur cet appareil. Pense à exporter une sauvegarde de temps en temps.`),
-        h('div', { class: 'actions-groupe' },
-          h('button', { class: 'ghost', type: 'button', onclick: exporterJson }, 'Exporter (JSON)'),
-          h('button', { class: 'ghost', type: 'button', onclick: exporterCsv }, 'Exporter (CSV)'),
-          h('button', { class: 'ghost', type: 'button', onclick: () => $('#fichier').click() }, 'Importer'),
-          h('button', { class: 'ghost danger', type: 'button', onclick: toutEffacer }, 'Tout effacer'))));
-      return racine;
-    }
-
-    /* ---------- Export / import ---------- */
-    function telecharger(nom, contenu, type) {
-      const url = URL.createObjectURL(new Blob([contenu], { type }));
-      const a = h('a', { href: url, download: nom });
-      document.body.append(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    function exporterJson() {
-      telecharger(`courses-${iso(aujourdhui())}.json`, JSON.stringify({ courses: etat.courses, reglages: etat.reglages }, null, 2), 'application/json');
-    }
-
-    function exporterCsv() {
-      const nb = (n) => String(n).replace('.', ',');
-      const txt = (t) => `"${String(t).replace(/"/g, '""')}"`;
-      const lignes = ['date;km;euros;plateforme;minutes;note'];
-      for (const c of [...etat.courses].sort((a, b) => (a.date < b.date ? -1 : 1))) lignes.push([c.date, nb(c.km), nb(c.euros), txt(c.plateforme), c.minutes || '', txt(c.note)].join(';'));
-      telecharger(`courses-${iso(aujourdhui())}.csv`, '﻿' + lignes.join('\n'), 'text/csv;charset=utf-8');
-    }
-
-    $('#fichier').addEventListener('change', async (e) => {
-      const fichier = e.target.files[0];
-      e.target.value = '';
-      if (!fichier) return;
-      try {
-        const d = JSON.parse(await fichier.text());
-        const entrantes = nettoyer(Array.isArray(d) ? d : d.courses);
-        if (!entrantes.length) { toast('Aucune course valide dans ce fichier.'); return; }
-        if (!window.confirm(`Importer ${entrantes.length} course(s) ? Elles seront fusionnées avec les courses existantes.`)) return;
-        const connus = new Set(etat.courses.map((c) => c.id));
-        const nouvelles = entrantes.filter((c) => !connus.has(c.id));
-        etat.courses.push(...nouvelles);
-        sauver();
-        rendu();
-        toast(`${nouvelles.length} course(s) ajoutée(s)`);
-      } catch (err) {
-        toast('Fichier illisible.');
+      function rendu() {
+        document.querySelectorAll("#onglets button").forEach((b) => {
+          const actif = b.dataset.vue === etat.vue;
+          b.classList.toggle("on", actif);
+          b.setAttribute("aria-current", actif ? "page" : "false");
+        });
+        $("#app").replaceChildren(vues[etat.vue]());
       }
-    });
 
-    function toutEffacer() {
-      if (!window.confirm('Effacer toutes les courses et tous les réglages ?')) return;
-      if (!window.confirm('Dernière confirmation : cette action est définitive.')) return;
-      etat.courses = [];
-      etat.reglages = { ...PAR_DEFAUT, plateformes: [...PAR_DEFAUT.plateformes] };
-      sauver();
-      appliquerTheme();
-      rendu();
-      toast('Données effacées');
-    }
-
-    /* ---------- Fenêtre de saisie ---------- */
-    const dlg = $('#dlg');
-    const champs = { date: $('#f-date'), km: $('#f-km'), eur: $('#f-eur'), plat: $('#f-plat'), min: $('#f-min'), note: $('#f-note') };
-
-    function ouvrirCourse(c) {
-      etat.edition = c ? c.id : null;
-      $('#dlg-titre').textContent = c ? 'Modifier la course' : 'Nouvelle course';
-      $('#f-suppr').hidden = !c;
-      $('#f-err').textContent = '';
-      champs.date.value = c ? c.date : (etat.vue === 'courses' && etat.mode === 'jour' && etat.decalage < 0 ? plage().debut : iso(aujourdhui()));
-      champs.km.value = c ? String(c.km).replace('.', ',') : '';
-      champs.eur.value = c ? String(c.euros).replace('.', ',') : '';
-      champs.min.value = c && c.minutes ? String(c.minutes) : '';
-      champs.note.value = c ? c.note : '';
-      const options = ['', ...etat.reglages.plateformes];
-      if (c && c.plateforme && !options.includes(c.plateforme)) options.push(c.plateforme);
-      champs.plat.replaceChildren(...options.map((o) => h('option', { value: o }, o || 'Aucune')));
-      champs.plat.value = c ? c.plateforme : '';
-      majApercu();
-      if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
-      if (!c) champs.km.focus();
-    }
-
-    function fermerDialogue() {
-      if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open');
-    }
-
-    function majApercu() {
-      const k = lireNombre(champs.km.value);
-      const e = lireNombre(champs.eur.value);
-      const m = lireNombre(champs.min.value);
-      const parties = [];
-      if (k && e !== null) {
-        parties.push(`${fmtEuros.format(e / k)} / km`);
-        if (etat.reglages.coutKm > 0) parties.push(`net ${fmtEuros.format(e - k * etat.reglages.coutKm)}`);
-        if (m) parties.push(`${fmtEuros.format(e / (m / 60))} / h`);
-      }
-      $('#f-apercu').textContent = parties.join(' · ');
-    }
-    for (const el of [champs.km, champs.eur, champs.min]) el.addEventListener('input', majApercu);
-
-    $('#f').addEventListener('submit', (ev) => {
-      ev.preventDefault();
-      const err = $('#f-err');
-      const km = lireNombre(champs.km.value);
-      const euros = lireNombre(champs.eur.value);
-      const brutMin = champs.min.value.trim();
-      const minutes = brutMin === '' ? 0 : lireNombre(brutMin);
-      if (!champs.date.value) { err.textContent = 'Indique la date.'; return; }
-      if (km === null || km <= 0) { err.textContent = 'La distance doit être supérieure à 0.'; champs.km.focus(); return; }
-      if (euros === null) { err.textContent = 'Le montant doit être un nombre positif.'; champs.eur.focus(); return; }
-      if (minutes === null) { err.textContent = 'La durée doit être un nombre de minutes.'; champs.min.focus(); return; }
-
-      const donnees = { date: champs.date.value, km, euros, plateforme: champs.plat.value, minutes: Math.round(minutes), note: champs.note.value.trim() };
-      const existante = etat.edition && etat.courses.find((c) => c.id === etat.edition);
-      if (existante) {
-        Object.assign(existante, donnees);
-      } else {
-        etat.courses.push({ id: `${Date.now()}${Math.floor(Math.random() * 1000)}`, ...donnees });
-      }
-      sauver();
-      fermerDialogue();
-      rendu();
-      toast(existante ? 'Course modifiée' : 'Course ajoutée');
-    });
-
-    $('#f-annuler').addEventListener('click', fermerDialogue);
-    function supprimerCourse(id) {
-      if (!window.confirm('Supprimer cette course ?')) return false;
-      etat.courses = etat.courses.filter((c) => c.id !== id);
-      sauver();
-      rendu();
-      toast('Course supprimée');
-      return true;
-    }
-    $('#f-suppr').addEventListener('click', () => {
-      if (!supprimerCourse(etat.edition)) return;
-      fermerDialogue();
-    });
-    dlg.addEventListener('click', (e) => { if (e.target === dlg) fermerDialogue(); });
-    $('#btn-ajout').addEventListener('click', () => ouvrirCourse(null));
-
-    /* ---------- Navigation et rendu ---------- */
-    const vues = { courses: vueCourses, stats: vueStats, outils: vueOutils, reglages: vueReglages };
-
-    function allerA(vue) {
-      etat.vue = vue;
-      rendu();
-      window.scrollTo(0, 0);
-    }
-
-    function appliquerTheme() {
-      const t = etat.reglages.theme;
-      document.documentElement.dataset.theme = t === 'light' || t === 'dark' ? t : '';
-    }
-
-    function rendu() {
-      document.querySelectorAll('#onglets button').forEach((b) => {
-        const actif = b.dataset.vue === etat.vue;
-        b.classList.toggle('on', actif);
-        b.setAttribute('aria-current', actif ? 'page' : 'false');
+      $("#onglets").addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-vue]");
+        if (b) allerA(b.dataset.vue);
       });
-      $('#app').replaceChildren(vues[etat.vue]());
-    }
 
-    $('#onglets').addEventListener('click', (e) => {
-      const b = e.target.closest('button[data-vue]');
-      if (b) allerA(b.dataset.vue);
-    });
+      $("#bandeau-export").addEventListener("click", exporterJson);
 
-    $('#bandeau-export').addEventListener('click', exporterJson);
+      // Une autre fenêtre de l’appli a modifié les données : on les recharge pour ne pas les écraser.
+      window.addEventListener("storage", (e) => {
+        if (e.key !== null && e.key !== CLE) return;
+        Object.assign(etat, charger());
+        appliquerTheme();
+        rendu();
+      });
 
-    // Une autre fenêtre de l’appli a modifié les données : on les recharge pour ne pas les écraser.
-    window.addEventListener('storage', (e) => {
-      if (e.key !== null && e.key !== CLE) return;
-      Object.assign(etat, charger());
       appliquerTheme();
       rendu();
-    });
-
-    appliquerTheme();
-    rendu();
-    $('#bandeau').hidden = etat.stockageOk;
-    if (etat.alerte) toast(etat.alerte, 6000);
-    // Demande un stockage durable au navigateur ; son effet sur Safari n’est pas garanti.
-    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-  </script>
-</body>
+      $("#bandeau").hidden = etat.stockageOk;
+      if (etat.alerte) toast(etat.alerte, 6000);
+      // Demande un stockage durable au navigateur ; son effet sur Safari n’est pas garanti.
+      if (navigator.storage && navigator.storage.persist)
+        navigator.storage.persist().catch(() => {});
+    </script>
+  </body>
 </html>
