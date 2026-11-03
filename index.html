@@ -1592,6 +1592,16 @@
                   `${fmtEuros.format(tout.euros / jours.size)} sur ${jours.size} jours`,
                 ),
               ),
+              h(
+                "div",
+                {},
+                h("span", {}, "Gain moyen par course"),
+                h(
+                  "strong",
+                  {},
+                  `${fmtEuros.format(tout.parCourse)} sur ${tout.n} courses`,
+                ),
+              ),
               meilleure
                 ? h(
                     "div",
