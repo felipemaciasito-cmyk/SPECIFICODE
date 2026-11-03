@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Petite application web en français (`index.html`) pour noter les courses de livraison. L'interface, les commentaires et les tests sont en français : garde cette convention.
 
+Chaque montant s'affiche avec une virgule comme séparateur décimal, suivie du symbole €, par exemple `12,50 €`.
+
 ## Commandes
 
 Il n'y a ni `package.json`, ni étape de build, ni linter.
