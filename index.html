@@ -993,6 +993,15 @@
           net: coutKm > 0 ? euros - km * coutKm : null,
         };
       }
+
+      // Totaux des courses du mois civil de `jour` (un objet Date). Réutilise totaux().
+      function totauxDuMois(liste, jour, coutKm = 0) {
+        const prefixe = `${jour.getFullYear()}-${pad(jour.getMonth() + 1)}`;
+        return totaux(
+          liste.filter((c) => c.date.startsWith(prefixe)),
+          coutKm,
+        );
+      }
       /* calculs:fin */
 
       const calculer = (liste) => totaux(liste, etat.reglages.coutKm);
@@ -1215,6 +1224,30 @@
           );
         }
         racine.append(carte);
+
+        // Totaux du mois civil en cours : indépendants de la période et du filtre.
+        const auj = aujourdhui();
+        const mois = totauxDuMois(etat.courses, auj, etat.reglages.coutKm);
+        racine.append(
+          h(
+            "div",
+            { class: "carte" },
+            h("h2", {}, `Ce mois-ci · ${fmtMois.format(auj)}`),
+            h(
+              "div",
+              { class: "kpis" },
+              kpi(
+                "Gains",
+                mois.n ? h("strong", {}, fmtEuros.format(mois.euros)) : "—",
+              ),
+              kpi("Km parcourus", `${fmtNb.format(mois.km)} km`),
+              kpi(
+                "€ / km",
+                mois.parKm === null ? "—" : fmtEuros.format(mois.parKm),
+              ),
+            ),
+          ),
+        );
 
         const carteListe = h("div", { class: "carte" });
         if (plateformes.length > 1) {
