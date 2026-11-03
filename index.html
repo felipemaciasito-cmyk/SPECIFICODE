@@ -210,6 +210,9 @@
         text-transform: none;
         color: var(--ink);
       }
+      .encadre-mois .courses-mois {
+        margin: 14px 0 0;
+      }
       .grille-2 {
         display: grid;
         gap: 20px;
@@ -1256,6 +1259,15 @@
                 "€ / km",
                 mois.parKm === null ? "—" : fmtEuros.format(mois.parKm),
               ),
+            ),
+            h(
+              "p",
+              { class: "etiquette courses-mois" },
+              mois.n === 0
+                ? "Aucune course ce mois-ci"
+                : mois.n === 1
+                  ? "1 course ce mois-ci"
+                  : `${fmtNb.format(mois.n)} courses ce mois-ci`,
             ),
           ),
         );
