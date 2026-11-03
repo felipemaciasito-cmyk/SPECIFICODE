@@ -1,1 +1,1 @@
-Mon labo pour apprendre Claude Code
+Mon projet d’appli test pour apprendre Claude Code
