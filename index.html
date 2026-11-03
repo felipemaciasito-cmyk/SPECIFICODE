@@ -200,6 +200,16 @@
         color: var(--muted);
         margin-bottom: 16px;
       }
+      /* Encadré des totaux du mois en cours */
+      .encadre-mois {
+        border: 2px solid var(--accent);
+      }
+      .encadre-mois h2 {
+        font: 600 18px var(--display);
+        letter-spacing: -0.01em;
+        text-transform: none;
+        color: var(--ink);
+      }
       .grille-2 {
         display: grid;
         gap: 20px;
@@ -1228,11 +1238,12 @@
         // Totaux du mois civil en cours : indépendants de la période et du filtre.
         const auj = aujourdhui();
         const mois = totauxDuMois(etat.courses, auj, etat.reglages.coutKm);
+        const nomMois = fmtMois.format(auj); // « novembre 2026 »
         racine.append(
           h(
             "div",
-            { class: "carte" },
-            h("h2", {}, `Ce mois-ci · ${fmtMois.format(auj)}`),
+            { class: "carte encadre-mois" },
+            h("h2", {}, nomMois.charAt(0).toUpperCase() + nomMois.slice(1)),
             h(
               "div",
               { class: "kpis" },
