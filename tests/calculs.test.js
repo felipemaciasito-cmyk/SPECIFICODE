@@ -183,3 +183,9 @@ test('totauxDuMois : net seulement si un coût au km est donné', () => {
   assert.equal(totauxDuMois(l, jourRef()).net, null);
   proche(totauxDuMois(l, jourRef(), 0.1).net, 11);
 });
+
+test('clé localStorage : CLE reste courses-livraison-v2', () => {
+  const m = html.match(/const CLE = "([^"]+)";/);
+  assert.ok(m, 'constante CLE introuvable dans index.html');
+  assert.equal(m[1], 'courses-livraison-v2');
+});
