@@ -1,5 +1,9 @@
 # Journal
 
+## 2026-11-04
+
+- Sous les totaux de la période affichée dans la vue Courses, une ligne « Meilleure course » indique la course qui a rapporté le plus d’€ par km, avec sa date (par exemple « Meilleure course : 14,50 € / km · 3 nov. »). Seules les courses d’au moins 1 km sont prises en compte. La ligne n’apparaît pas s’il n’y a aucune course éligible.
+
 ## 2026-11-03
 
 - La carte du mois en cours est dans un encadré mis en valeur, avec le nom du mois en titre (par exemple « Novembre 2026 »).
