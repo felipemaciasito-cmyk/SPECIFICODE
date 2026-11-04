@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: À utiliser après toute modification du code de l'appli (index.html, fonctions de calcul, tests). Lance les tests unitaires (node --test), vérifie le diff par rapport à main pour qu'aucun test n'ait été supprimé ni assoupli, puis conclut RÉUSSI ou ÉCHEC.
+description: OBLIGATOIRE dès qu'une modification touche index.html (y compris un ajout d'affichage ou une fonction du bloc calculs), tests/*.js ou la logique de l'app, et avant tout commit, push ou message de fin qui annonce un changement de l'app. Lance les tests unitaires (node --test), vérifie le diff par rapport à main pour qu'aucun test n'ait été supprimé ni assoupli, puis conclut RÉUSSI ou ÉCHEC. Ne pas l'utiliser pour une modification uniquement documentaire (JOURNAL.md, README.md, CLAUDE.md).
 ---
 
 Vérifie le code de l'appli en suivant ces étapes, dans l'ordre.
