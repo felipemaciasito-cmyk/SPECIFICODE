@@ -1015,6 +1015,20 @@
           coutKm,
         );
       }
+
+      // Course ayant rapporté le plus d’€ par km, parmi celles d’au moins 1 km. En cas d’égalité, la première gagne.
+      function meilleureCourse(liste) {
+        let meilleure = null;
+        for (const c of liste) {
+          if (!(c.km >= 1)) continue;
+          if (
+            meilleure === null ||
+            c.euros / c.km > meilleure.euros / meilleure.km
+          )
+            meilleure = c;
+        }
+        return meilleure;
+      }
       /* calculs:fin */
 
       const calculer = (liste) => totaux(liste, etat.reglages.coutKm);
@@ -1217,6 +1231,16 @@
           ),
           h("div", { class: "kpis" }, secondaires),
         );
+
+        const meilleure = meilleureCourse(liste);
+        if (meilleure)
+          carte.append(
+            h(
+              "p",
+              { class: "etiquette", style: "margin-top:16px" },
+              `Meilleure course : ${fmtEuros.format(meilleure.euros / meilleure.km)} / km · ${fmtDateCourte.format(lireDate(meilleure.date))}`,
+            ),
+          );
 
         if (
           etat.reglages.objectifSemaine > 0 &&
@@ -1609,10 +1633,7 @@
         racine.append(duo);
 
         // Records
-        const eligibles = etat.courses.filter((c) => c.km >= 1);
-        const meilleure = eligibles.sort(
-          (a, b) => b.euros / b.km - a.euros / a.km,
-        )[0];
+        const meilleure = meilleureCourse(etat.courses);
         const parDate = {};
         for (const c of etat.courses)
           parDate[c.date] = (parDate[c.date] || 0) + c.euros;
