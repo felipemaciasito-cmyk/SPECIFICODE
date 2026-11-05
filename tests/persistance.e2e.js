@@ -89,6 +89,28 @@ const etape = (nom) => { ok++; console.log(`  ok   ${nom}`); };
   assert.equal(await nombre(), avant);
   etape('montant vide, distance 0 ou négative : erreur affichée, aucune course ajoutée');
 
+  // 5c. Bouton « Vider » : champs et erreur effacés, date gardée, rien d'enregistré
+  await p.click('#btn-ajout');
+  const dateAvant = await p.inputValue('#f-date');
+  await p.fill('#f-km', '0');
+  await p.click('#f button[type=submit]');
+  assert.notEqual(await p.textContent('#f-err'), '');
+  await p.fill('#f-km', '3');
+  await p.fill('#f-eur', '4');
+  await p.fill('#f-min', '20');
+  await p.fill('#f-note', 'test');
+  await p.selectOption('#f-plat', { index: 1 });
+  await p.click('#f-vider');
+  for (const champ of ['#f-km', '#f-eur', '#f-min', '#f-note', '#f-plat'])
+    assert.equal(await p.inputValue(champ), '', `${champ} doit être vide`);
+  assert.equal(await p.inputValue('#f-date'), dateAvant);
+  assert.equal(await p.textContent('#f-err'), '');
+  assert.equal(await p.textContent('#f-apercu'), '');
+  assert.equal(await p.evaluate(() => document.activeElement.id), 'f-km');
+  await p.keyboard.press('Escape');
+  assert.equal(await nombre(), avant);
+  etape('bouton « Vider » : champs et erreur effacés, date gardée, rien enregistré');
+
   // 6. Échec d'écriture : bandeau visible
   await p.evaluate(() => { Storage.prototype.setItem = () => { throw new Error('quota'); }; });
   await ajouter(p, '1', '1');

@@ -633,18 +633,28 @@
       .actions {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: 10px;
       }
-      .espace {
-        flex: 1;
+      .actions .groupe {
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
-      .lien-danger {
+      .actions .a-droite {
+        margin-left: auto;
+      }
+      .lien-danger,
+      .lien {
         border: 0;
         background: transparent;
         color: var(--warn);
         min-height: 44px;
         padding: 0 6px;
         font-weight: 500;
+      }
+      .lien {
+        color: var(--muted);
       }
 
       #bandeau {
@@ -764,12 +774,16 @@
         <p class="apercu" id="f-apercu"></p>
         <p class="err" id="f-err" role="alert"></p>
         <div class="actions">
-          <button type="button" class="lien-danger" id="f-suppr">
-            Supprimer
-          </button>
-          <span class="espace"></span>
-          <button type="button" class="ghost" id="f-annuler">Annuler</button>
-          <button type="submit" class="primaire">Enregistrer</button>
+          <span class="groupe">
+            <button type="button" class="lien-danger" id="f-suppr">
+              Supprimer
+            </button>
+            <button type="button" class="lien" id="f-vider">Vider</button>
+          </span>
+          <span class="groupe a-droite">
+            <button type="button" class="ghost" id="f-annuler">Annuler</button>
+            <button type="submit" class="primaire">Enregistrer</button>
+          </span>
         </div>
       </form>
     </dialog>
@@ -2293,6 +2307,18 @@
       });
 
       $("#f-annuler").addEventListener("click", fermerDialogue);
+
+      // Vide les champs saisis (la date est gardée). Rien n’est enregistré avant « Enregistrer ».
+      $("#f-vider").addEventListener("click", () => {
+        champs.km.value = "";
+        champs.eur.value = "";
+        champs.plat.value = "";
+        champs.min.value = "";
+        champs.note.value = "";
+        $("#f-err").textContent = "";
+        majApercu();
+        champs.km.focus();
+      });
       function supprimerCourse(id) {
         if (!window.confirm("Supprimer cette course ?")) return false;
         etat.courses = etat.courses.filter((c) => c.id !== id);
