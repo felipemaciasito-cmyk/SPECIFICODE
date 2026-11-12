@@ -1,0 +1,32 @@
+# Lance les tests unitaires (node --test) à chaque pull request et à chaque push sur main.
+# N'utilise que des actions officielles de GitHub, sans clé ni secret.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Le jeton automatique de GitHub n'a besoin que de lire le dépôt.
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests unitaires
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Le workflow ne pousse rien : inutile de garder le jeton dans la config git.
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # Même commande que .claude/skills/verifier/verifier.sh.
+      # Node découvre tests/calculs.test.js ; tests/persistance.e2e.js (Playwright) n'est pas lancé.
+      - name: node --test
+        run: node --test
